@@ -22,6 +22,7 @@ export const siteConfig: SiteConfig = {
     "hero",
     "about",
     "skills",
+    "competitive",
     "experience",
     "projects",
     "services",
@@ -39,6 +40,7 @@ export const siteConfig: SiteConfig = {
   ],
 
   blogEnabled: true,
+  competitiveEnabled: true,
 
   analytics: {
     provider: "none", // "vercel" | "plausible" | "none"

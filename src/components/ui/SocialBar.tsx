@@ -1,5 +1,5 @@
 import { socials } from "@/data/socials";
-import { Icon } from "@/components/ui/Icon";
+import { BrandIcon } from "@/components/ui/BrandIcon";
 import { cn } from "@/lib/utils";
 
 /** Row of social icon links, driven by `data/socials.ts`. */
@@ -15,7 +15,7 @@ export function SocialBar({ className }: { className?: string }) {
           aria-label={s.label}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted transition-colors hover:border-accent hover:text-accent"
         >
-          <Icon name={s.icon} size={18} />
+          <BrandIcon name={s.icon} fallbackLabel={s.label} size={18} />
         </a>
       ))}
     </div>

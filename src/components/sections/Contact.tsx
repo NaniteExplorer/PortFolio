@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { Send, Loader2, CheckCircle2, AlertCircle, Mail, MapPin } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import { SocialBar } from "@/components/ui/SocialBar";
+import { BrandIcon } from "@/components/ui/BrandIcon";
+import { socials } from "@/data/socials";
 import { fadeUp } from "@/lib/motion";
 
 type Status = "idle" | "sending" | "success" | "error";
@@ -76,6 +78,25 @@ export function Contact() {
               Rourkela, India
             </p>
           </div>
+
+          {/* Quick-connect channels (primary socials, e.g. WhatsApp/LinkedIn) */}
+          <div className="flex flex-wrap gap-3">
+            {socials
+              .filter((s) => s.primary)
+              .map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target={s.href.startsWith("http") ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium transition-colors hover:border-accent hover:text-accent"
+                >
+                  <BrandIcon name={s.icon} fallbackLabel={s.label} size={18} />
+                  {s.label}
+                </a>
+              ))}
+          </div>
+
           <SocialBar />
         </motion.div>
 

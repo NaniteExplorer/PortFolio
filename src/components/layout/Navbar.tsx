@@ -21,6 +21,8 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   const nav = [...siteConfig.nav];
+  if (siteConfig.competitiveEnabled)
+    nav.push({ label: "Competitive", href: "/competitive" });
   if (siteConfig.blogEnabled) nav.push({ label: "Blog", href: "/blog" });
 
   // Observe in-page anchor sections only.

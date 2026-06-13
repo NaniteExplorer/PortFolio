@@ -3,6 +3,7 @@ import type { SectionId } from "@/types";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
 import { Skills } from "@/components/sections/Skills";
+import { Competitive } from "@/components/sections/Competitive";
 import { Experience } from "@/components/sections/Experience";
 import { Projects } from "@/components/sections/Projects";
 import { Services } from "@/components/sections/Services";
@@ -18,6 +19,7 @@ export const sectionRegistry: Record<SectionId, ComponentType> = {
   hero: Hero,
   about: About,
   skills: Skills,
+  competitive: Competitive,
   experience: Experience,
   projects: Projects,
   services: Services,
