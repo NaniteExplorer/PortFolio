@@ -22,7 +22,6 @@ export type SectionId =
   | "competitive"
   | "experience"
   | "projects"
-  | "services"
   | "testimonials"
   | "contact";
 
@@ -61,20 +60,52 @@ export interface HeroContent {
 export interface Stat {
   value: string;
   label: string;
+  /** Optional lucide icon name shown above the value. */
+  icon?: IconName;
+  /**
+   * Optional live data source. When set, the rendered value is computed at
+   * runtime (GitHub repos/contributions, years since `codingSince`, or the
+   * count of skills) and `value` becomes the fallback if the source is
+   * unavailable.
+   */
+  source?: "repos" | "years" | "technologies" | "contributions";
+}
+
+/** A focus area / capability card shown in the About section. */
+export interface FocusArea {
+  /** lucide icon name. */
+  icon: IconName;
+  title: string;
+  description: string;
 }
 
 /** About / bio content. */
 export interface AboutContent {
   heading: string;
+  /** Optional refined headline shown above the bio copy. */
+  subheading?: string;
   /** Paragraphs of bio copy. */
   paragraphs: string[];
   /** Profile photo (local path under /public or remote URL). */
   photo: string;
-  /** Short bullet highlights. */
+  /** Short bullet highlights (fallback when `focusAreas` is absent). */
   highlights: string[];
+  /** Richer capability cards (icon + title + description). */
+  focusAreas?: FocusArea[];
   stats: Stat[];
+  /**
+   * When you started coding/development, e.g. "2022" or "2022-06-01". Used to
+   * compute the live "Years Coding" stat.
+   */
+  codingSince?: string;
   /** Path to resume file under /public, e.g. "/resume.pdf". */
   resumeUrl?: string;
+  /** Home base, e.g. "Rourkela, India". */
+  location?: string;
+  /** Availability line, e.g. "Open to new opportunities". */
+  availability?: string;
+  /** Secondary CTA, e.g. a link to the contact section. */
+  secondaryCta?: { label: string; href: string };
 }
 
 /** One skill / technology. */

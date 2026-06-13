@@ -25,7 +25,6 @@ export const siteConfig: SiteConfig = {
     "competitive",
     "experience",
     "projects",
-    "services",
     "testimonials",
     "contact",
   ],
