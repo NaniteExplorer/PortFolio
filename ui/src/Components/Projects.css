@@ -1,41 +1,50 @@
-#portfolio{
-    padding: 50px 0;
-    /* height: 100vh; */
-}
-.conatiner{
-    height: 100vh;
-}
-
-.work-list{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 4fr));
-    grid-gap: 90px;
-    margin-top: 50px;
-    margin-bottom: 100px;
-    /* height: 100vh; */
-    /* overflow-x: hidden; */
-}
-
-.work{
-    /* width: 20vmax;
-    height: 20vmax; */
-
-    border-radius: 10px;
+#portofolio {
     position: relative;
-    overflow: hidden;
-}
-
-.work img{
-
+    height: 100vh;
+  }
+  
+  .container {
+    width: 100%;
+    position: relative;
+  }
+  
+  .sub-title {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .work-list {
+    margin: 7vmax 0;
+    display: flex;
+    gap: 20px;
+    overflow-x: hidden;  
+    scroll-behavior: smooth;
+    padding-bottom: 10px;
+  }
+  
+  .work {
+    /* min-width: 250px;   */
+    width: 25vmax;
+    flex-shrink: 0;
+    border-radius: 10px;
+    margin: 10px;
+    position: relative;
+    transition: transform 0.3s ease-in-out;
+    
+  }
+  
+  .work img {
     width: 100%;
     border-radius: 10px;
     display: block;
-    transition: transform 0.5s;
-}
-.layer{
+    object-fit: cover;
+    
+  }
+  
+  .layer {
     width: 100%;
     height: 0%;
-    background: linear-gradient(rgba(0,0,0,0.6), #ff004f);
+    background: linear-gradient(rgba(0, 0, 0, 0.6), #ff004f);
     border-radius: 10px;
     position: absolute;
     left: 0;
@@ -49,14 +58,14 @@
     text-align: center;
     font-size: 14px;
     transition: height 0.5s;
-}
-
-.layer h3{
+  }
+  
+  .layer h3 {
     font-weight: 500;
     margin-bottom: 20px;
-}
-
-.layer a{
+  }
+  
+  .layer a {
     margin-top: 20px;
     color: #ff004f;
     text-decoration: none;
@@ -67,13 +76,40 @@
     height: 60px;
     border-radius: 50%;
     text-align: center;
-}
-
-.work:hover img{
+  }
+  
+  .work:hover {
     transform: scale(1.1);
-}
-
-.work:hover .layer{
+  }
+  
+  .work:hover .layer {
     height: 100%;
-
-}
+  }
+  
+ 
+  .carousel-btn {
+    position: absolute;
+    top: 63%;
+     
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    font-size: 2rem;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 2;
+  }
+  
+  .carousel-btn.left {
+    left: 0px;
+  }
+  
+  .carousel-btn.right {
+    right: 0px;
+  }
+  
+  .carousel-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  

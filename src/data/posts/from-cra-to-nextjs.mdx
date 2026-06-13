@@ -1,0 +1,27 @@
+---
+title: "Migrating from Create React App to Next.js"
+date: "2026-04-02"
+excerpt: "Lessons learned moving a client-side React app to the Next.js App Router — routing, data, and SEO wins."
+tags: ["Next.js", "React", "Migration"]
+cover: "https://i.postimg.cc/85Dk5vhF/Image-Editor-1.png"
+draft: false
+---
+
+## The motivation
+
+Create React App ships everything to the client and gives you nothing for SEO
+out of the box. Next.js fixes both with server rendering, file-based routing,
+and a first-class metadata API.
+
+## What changed
+
+- Components became **server components** by default; only interactive pieces
+  are marked `"use client"`.
+- Routing moved from manual anchors to the **App Router** file structure.
+- SEO is now declarative via the `metadata` export and a JSON-LD script.
+
+## The payoff
+
+Faster loads, better Lighthouse scores, real social-share previews, and a
+codebase that's far easier to extend. If you're starting a React project today,
+reach for Next.js first.

@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * ───────────────────────────────────────────────────────────────────────────
+ *  DESIGN TOKENS
+ *  Colors are RGB triplets so Tailwind's `<alpha-value>` works (e.g. bg-bg/80).
+ *  Dark is the default; `.light` on <html> overrides for light mode.
+ *  Accent preserves the original portfolio's signature pink/red (#ff004f).
+ * ───────────────────────────────────────────────────────────────────────────
+ */
+:root,
+.dark {
+  --bg: 18 18 18; /* #121212 */
+  --surface: 26 26 28;
+  --surface-2: 38 38 42;
+  --fg: 245 245 245;
+  --muted: 156 156 163;
+  --border: 48 48 54;
+  --accent: 255 0 79; /* #ff004f */
+  --accent-2: 214 0 66;
+}
+
+.light {
+  --bg: 250 250 252;
+  --surface: 255 255 255;
+  --surface-2: 240 240 244;
+  --fg: 20 20 24;
+  --muted: 90 90 100;
+  --border: 224 224 230;
+  --accent: 230 0 70;
+  --accent-2: 200 0 60;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-bg text-fg antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  ::selection {
+    @apply bg-accent text-white;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-bg;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-surface-2;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-accent;
+  }
+}
+
+@layer utilities {
+  /* Radial spotlight used behind hero / section backgrounds */
+  .bg-grid {
+    background-image: radial-gradient(
+      rgb(var(--border) / 0.4) 1px,
+      transparent 1px
+    );
+    background-size: 32px 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

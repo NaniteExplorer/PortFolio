@@ -1,0 +1,39 @@
+---
+title: "Building a 3D Portfolio with Next.js and Three.js"
+date: "2026-05-20"
+excerpt: "How I combined React Three Fiber, Framer Motion, and a data-driven architecture to build a portfolio that's fast, accessible, and fun."
+tags: ["Next.js", "Three.js", "React"]
+cover: "https://i.postimg.cc/nrtyFHqS/i-Phone-15.png"
+draft: false
+---
+
+## Why 3D?
+
+A portfolio is the first impression you make on a potential employer or client.
+A tasteful 3D hero communicates technical depth without sacrificing performance —
+if you do it right.
+
+## The stack
+
+- **Next.js (App Router)** for routing, SSG, and SEO
+- **React Three Fiber** to write Three.js declaratively
+- **Framer Motion** for entrance and scroll animations
+- **Tailwind CSS** with CSS-variable design tokens for theming
+
+## Keeping it fast
+
+The 3D scene is loaded with `next/dynamic` and `ssr: false`, so it never blocks
+first paint. I also:
+
+1. Clamp the device pixel ratio to `[1, 2]`
+2. Reduce particle counts and pause auto-rotation for `prefers-reduced-motion`
+3. Use a single `BufferGeometry` for the particle field — one draw call
+
+> Performance is a feature. A beautiful site that janks is worse than a plain
+> one that's smooth.
+
+## Data-driven content
+
+Every section reads from typed files under `src/data/`. Adding a project is as
+simple as appending an object — no component edits required. That separation is
+what makes this maintainable long term.
