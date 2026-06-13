@@ -41,6 +41,7 @@ export const siteConfig: SiteConfig = {
 
   blogEnabled: true,
   competitiveEnabled: true,
+  devProfileEnabled: true,
 
   analytics: {
     provider: "none", // "vercel" | "plausible" | "none"

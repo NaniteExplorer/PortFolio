@@ -39,6 +39,35 @@ type IconComponent = ComponentType<{
 }>;
 
 /**
+ * AtCoder has no Simple Icon, so we ship a faithful inline mark (the "A" + chip
+ * motif from the AtCoder wordmark). `currentColor` lets the card tint it to the
+ * brand color, matching every other platform logo.
+ */
+function SiAtcoder({ size = 22, className, color }: {
+  size?: number | string;
+  className?: string;
+  color?: string;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color ?? "currentColor"}
+      strokeWidth={2.1}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M4 19 L12 5 L20 19" />
+      <path d="M7.6 13.2 H16.4" />
+    </svg>
+  );
+}
+
+/**
  * ───────────────────────────────────────────────────────────────────────────
  *  ICON REGISTRY — the single place to register brand/tech logos.
  * ───────────────────────────────────────────────────────────────────────────
@@ -71,6 +100,7 @@ export const iconRegistry: Record<string, IconComponent> = {
   SiLeetcode,
   SiCodeforces,
   SiCodechef,
+  SiAtcoder,
   SiHackerrank,
   SiGeeksforgeeks,
   SiHackerearth,
@@ -91,12 +121,13 @@ export const iconRegistry: Record<string, IconComponent> = {
 export const brandColors: Record<string, string> = {
   leetcode: "#FFA116",
   codeforces: "#1F8ACB",
-  atcoder: "#222222",
+  atcoder: "#64748B",
   codechef: "#5B4638",
   geeksforgeeks: "#2F8D46",
   hackerrank: "#00EA64",
   hackerearth: "#2C3454",
   codingninjas: "#FC4F41",
+  algozenith: "#6D28D9",
 };
 
 interface BrandIconProps {

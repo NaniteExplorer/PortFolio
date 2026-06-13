@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Target, TrendingUp, Trophy } from "lucide-react";
+import { ArrowRight, Target, Layers, Trophy } from "lucide-react";
 import { competitive } from "@/data/competitive";
 import { cpAggregates } from "@/lib/competitive";
 import { Section, SectionHeader } from "@/components/ui/Section";
@@ -19,8 +19,8 @@ export function Competitive() {
 
   const headlineStats = [
     { icon: Target, value: `${stats.totalSolved}+`, label: "Problems solved" },
-    { icon: TrendingUp, value: stats.peakRating, label: "Peak rating" },
     { icon: Trophy, value: `${stats.totalContests}+`, label: "Contests" },
+    { icon: Layers, value: stats.platformCount, label: "Platforms" },
   ];
 
   return (

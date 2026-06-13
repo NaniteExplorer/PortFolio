@@ -186,6 +186,9 @@ export interface CPDataPoint {
 
 /** A competitive-programming profile on one platform. */
 export interface CPPlatform {
+  /** True when the values on this card came from a live API fetch (not the
+   *  hand-maintained fallback). Set by the live-merge layer at request time. */
+  live?: boolean;
   /** Stable id, also used for brand color lookup (e.g. "leetcode"). */
   id: string;
   /** Display name, e.g. "LeetCode". */
@@ -233,9 +236,85 @@ export interface CPProfile {
   achievements: CPAchievement[];
   /**
    * Optional daily activity counts (most recent last) for the heatmap. Each
-   * number is a submission/solve count for one day.
+   * number is a submission/solve count for one day. Trailing-window fallback
+   * used when no per-day map is available.
    */
   activity?: number[];
+  /**
+   * Full unified date(YYYY-MM-DD)→count map across every platform that reported
+   * per-day data. Powers the year-filterable heatmap (set by the merge layer).
+   */
+  activityByDay?: Record<string, number>;
+  /** ISO timestamp of the last successful live sync (set by the merge layer). */
+  syncedAt?: string;
+  /** Number of platforms whose data came from a live fetch this render. */
+  liveCount?: number;
+}
+
+/* ───────────────────────────────  Dev Profile (GitHub)  ─────────────────── */
+
+/** One GitHub account to aggregate (personal, freelance, office, …). */
+export interface DevAccount {
+  /** Display label, e.g. "Personal", "Eva (Office)". */
+  label: string;
+  /** GitHub username. */
+  username: string;
+  /** Profile URL. */
+  url: string;
+  /** Short kind chip, e.g. "Personal", "Office", "Freelance". */
+  kind?: string;
+  /**
+   * Name of the env var holding this account's Personal Access Token. Required
+   * to count PRIVATE contributions (the token must belong to this account).
+   * Public contributions also need a token because GitHub's GraphQL API is
+   * authenticated-only. e.g. "GITHUB_TOKEN_PERSONAL".
+   */
+  tokenEnv?: string;
+}
+
+/** Live (or fallback) stats for a single GitHub account. */
+export interface DevAccountStats {
+  label: string;
+  username: string;
+  url: string;
+  kind?: string;
+  /** True when these numbers came from a live GitHub fetch. */
+  ok: boolean;
+  avatar?: string;
+  /** Commit contributions in the trailing year. */
+  commits?: number;
+  /** All contributions (commits + PRs + issues + reviews) in the trailing year. */
+  contributions?: number;
+  /** Private contributions counted (only with a valid token for this account). */
+  privateContributions?: number;
+  followers?: number;
+  publicRepos?: number;
+  /** date(ISO) → contribution count, trailing year. */
+  daily?: Record<string, number>;
+  /** Language usage (repo count per language) for charts. */
+  languages?: CPDataPoint[];
+}
+
+/** Aggregated multi-account GitHub profile (drives /dev). */
+export interface DevProfileData {
+  headline: string;
+  summary: string;
+  accounts: DevAccountStats[];
+  totals: {
+    commits: number;
+    contributions: number;
+    repos: number;
+    followers: number;
+    accounts: number;
+  };
+  /** Merged daily contributions across all accounts (most recent last). */
+  activity: number[];
+  /** Language totals merged across accounts. */
+  languages: CPDataPoint[];
+  /** ISO timestamp of the render. */
+  syncedAt: string;
+  /** Number of accounts whose data came from a live fetch. */
+  liveCount: number;
 }
 
 /** Top-level site configuration. */
@@ -260,6 +339,8 @@ export interface SiteConfig {
   blogEnabled: boolean;
   /** Toggle the /competitive analytics route + nav entry. */
   competitiveEnabled: boolean;
+  /** Toggle the /dev (GitHub dev-profile analytics) route + nav entry. */
+  devProfileEnabled: boolean;
   /** Analytics configuration. */
   analytics: {
     provider: "vercel" | "plausible" | "none";

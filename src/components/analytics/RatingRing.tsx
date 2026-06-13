@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 export function RatingRing({
   value,
   max,
+  displayValue,
   size = 72,
   thickness = 7,
   color = "rgb(var(--accent))",
@@ -16,6 +17,9 @@ export function RatingRing({
 }: {
   value: number;
   max: number;
+  /** Number shown in the center. Defaults to `value`. Use to surface a
+   *  different figure (e.g. peak) while the ring still fills by value/max. */
+  displayValue?: number;
   size?: number;
   thickness?: number;
   color?: string;
@@ -52,7 +56,7 @@ export function RatingRing({
         />
       </svg>
       <div className="absolute flex flex-col items-center">
-        <span className="text-sm font-bold leading-none">{value}</span>
+        <span className="text-sm font-bold leading-none">{displayValue ?? value}</span>
         {label && <span className="mt-0.5 text-[10px] text-muted">{label}</span>}
       </div>
     </div>

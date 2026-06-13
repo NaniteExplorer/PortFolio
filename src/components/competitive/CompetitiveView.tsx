@@ -10,6 +10,8 @@ import { DonutChart } from "@/components/analytics/DonutChart";
 import { BarChart } from "@/components/analytics/BarChart";
 import { Heatmap } from "@/components/analytics/Heatmap";
 import { PlatformCard } from "@/components/analytics/PlatformCard";
+import { SyncBadge } from "@/components/analytics/SyncBadge";
+import { BrandIcon } from "@/components/ui/BrandIcon";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { stagger, fadeUp, viewportOnce } from "@/lib/motion";
@@ -44,12 +46,18 @@ export function CompetitiveView({
             <ArrowLeft size={16} /> Back to portfolio
           </Link>
         </motion.div>
-        <motion.p
-          variants={fadeUp}
-          className="mb-3 mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-accent"
-        >
-          Problem Solving
-        </motion.p>
+        <motion.div variants={fadeUp} className="mb-3 mt-6 flex flex-wrap items-center gap-3">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">
+            Problem Solving
+          </p>
+          {profile.syncedAt && (
+            <SyncBadge
+              syncedAt={profile.syncedAt}
+              liveCount={profile.liveCount}
+              total={profile.platforms.length}
+            />
+          )}
+        </motion.div>
         <motion.h1
           variants={fadeUp}
           className="text-4xl font-bold tracking-tight md:text-5xl"
@@ -69,10 +77,10 @@ export function CompetitiveView({
         variants={stagger}
         className="mb-16 grid grid-cols-2 gap-4 md:grid-cols-4"
       >
-        <StatTile value={`${stats.totalSolved}+`} label="Problems Solved" icon="Target" />
-        <StatTile value={stats.peakRating} label="Peak Rating" icon="TrendingUp" />
-        <StatTile value={`${stats.totalContests}+`} label="Rated Contests" icon="Trophy" />
-        <StatTile value={stats.platformCount} label="Platforms" icon="Layers" />
+        <StatTile count={stats.totalSolved} suffix="+" label="Problems Solved" icon="Target" />
+        <StatTile count={stats.activeDays} label="Active Days" icon="CalendarCheck" />
+        <StatTile count={stats.totalContests} suffix="+" label="Rated Contests" icon="Trophy" />
+        <StatTile count={stats.platformCount} label="Platforms" icon="Layers" />
       </motion.section>
 
       {/* Platform cards */}
@@ -101,7 +109,13 @@ export function CompetitiveView({
       >
         <motion.div variants={fadeUp}>
           <Card className="h-full">
-            <h3 className="mb-6 font-bold">Problems by Difficulty</h3>
+            <div className="mb-6 flex items-center justify-between gap-2">
+              <h3 className="font-bold">Problems by Difficulty</h3>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2/70 px-2.5 py-1 text-xs font-medium text-muted">
+                <BrandIcon name="SiLeetcode" size={13} color="#FFA116" />
+                LeetCode
+              </span>
+            </div>
             <DonutChart data={profile.difficulty} centerLabel="solved" />
           </Card>
         </motion.div>
@@ -113,8 +127,9 @@ export function CompetitiveView({
         </motion.div>
       </motion.section>
 
-      {/* Activity heatmap */}
-      {profile.activity && profile.activity.length > 0 && (
+      {/* Activity heatmap — unified across every platform with per-day data */}
+      {((profile.activityByDay && Object.keys(profile.activityByDay).length > 0) ||
+        (profile.activity && profile.activity.length > 0)) && (
         <motion.section
           initial="hidden"
           whileInView="visible"
@@ -124,7 +139,14 @@ export function CompetitiveView({
         >
           <motion.div variants={fadeUp}>
             <Card>
-              <Heatmap data={profile.activity} title="Solving Activity" />
+              <Heatmap
+                byDay={profile.activityByDay}
+                data={profile.activity}
+                anchorDate={profile.syncedAt}
+                title="Unified Solving Activity — all platforms"
+                scheme="green"
+                unit="solve"
+              />
             </Card>
           </motion.div>
         </motion.section>

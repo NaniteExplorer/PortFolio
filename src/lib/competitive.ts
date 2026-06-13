@@ -10,7 +10,13 @@ export function cpAggregates(profile: CPProfile) {
   const totalSolved = profile.platforms.reduce((s, p) => s + (p.solved ?? 0), 0);
   const totalContests = profile.platforms.reduce((s, p) => s + (p.contests ?? 0), 0);
   const ratedPlatforms = profile.platforms.filter((p) => p.rating != null);
-  const peakRating = Math.max(0, ...profile.platforms.map((p) => p.maxRating ?? 0));
+
+  // Days with at least one solve, clubbed across every platform. Honest and
+  // comparable — unlike a single "peak rating", which means a different tier on
+  // each platform and so can't be merged into one headline number.
+  const activeDays = profile.activityByDay
+    ? Object.values(profile.activityByDay).filter((n) => n > 0).length
+    : (profile.activity ?? []).filter((n) => n > 0).length;
 
   // Solved-per-platform series for the bar chart.
   const solvedByPlatform: CPDataPoint[] = profile.platforms
@@ -27,7 +33,7 @@ export function cpAggregates(profile: CPProfile) {
     totalContests,
     platformCount: profile.platforms.length,
     ratedCount: ratedPlatforms.length,
-    peakRating,
+    activeDays,
     solvedByPlatform,
   };
 }
