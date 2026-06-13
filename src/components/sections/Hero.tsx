@@ -19,8 +19,8 @@ export function Hero() {
       id="hero"
       className="relative flex min-h-screen items-center overflow-hidden"
     >
-      {/* 3D background (temporarily disabled for debugging hydration issue) */}
-      <div aria-hidden className="absolute inset-0 -z-0" />
+      {/* 3D background */}
+      <HeroCanvas />
 
       {/* Readability gradient over the canvas */}
       <div className="pointer-events-none absolute inset-0 -z-0 bg-gradient-to-b from-bg/40 via-bg/10 to-bg" />
