@@ -140,6 +140,8 @@ export interface Experience {
   /** Tech used in this role. */
   tags?: string[];
   type?: "work" | "education";
+  /** Short category label shown as a refined chip, e.g. "Full-time", "Leadership", "Education". */
+  kind?: string;
   /** Marks the current/ongoing role (renders a live pulse). */
   current?: boolean;
   /** Optional external link (company site, certificate). */

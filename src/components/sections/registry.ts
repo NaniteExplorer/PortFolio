@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, ReactElement } from "react";
 import type { SectionId } from "@/types";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
@@ -14,7 +14,11 @@ import { Contact } from "@/components/sections/Contact";
  * `siteConfig.sections` array and renders the matching components — so the
  * page composition is fully data-driven.
  */
-export const sectionRegistry: Record<SectionId, ComponentType> = {
+// Sections may be plain client/server components OR async server components
+// (e.g. `Competitive`, which awaits live data) — hence the Promise return union.
+type SectionComponent = ComponentType | (() => Promise<ReactElement>);
+
+export const sectionRegistry: Record<SectionId, SectionComponent> = {
   hero: Hero,
   about: About,
   skills: Skills,

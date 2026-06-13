@@ -25,7 +25,7 @@ export const siteConfig: SiteConfig = {
     "competitive",
     "experience",
     "projects",
-    "testimonials",
+    // "testimonials" — hidden until real recommendations are available.
     "contact",
   ],
 

@@ -57,8 +57,8 @@ export const competitive: CPProfile = {
       rating: 1617,
       maxRating: 1679,
       rank: "Expert",
-      solved: 500,
-      contests: 40,
+      solved: 131,
+      contests: 25,
     },
     {
       id: "codechef",
@@ -88,7 +88,7 @@ export const competitive: CPProfile = {
     { title: "Expert on Codeforces", detail: "Peak rating 1679", icon: "Trophy" },
     { title: "Knight on LeetCode", detail: "Peak contest rating 2047 (top ~2%)", icon: "Sword" },
     { title: "3★ on CodeChef", detail: "Peak rating 1818", icon: "Star" },
-    { title: "130+ rated contests", detail: "Across LeetCode, Codeforces & CodeChef", icon: "Swords" },
+    { title: "120+ rated contests", detail: "Across LeetCode, Codeforces & CodeChef", icon: "Swords" },
     { title: "Consistent daily practice", detail: "Active solving streak", icon: "Flame" },
   ],
 

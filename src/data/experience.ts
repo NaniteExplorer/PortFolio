@@ -3,41 +3,45 @@ import type { Experience } from "@/types";
 /**
  * Work & education timeline, newest-first. `current: true` adds a live pulse;
  * `logo` is an icon-registry key; `link` makes the company clickable.
+ *
+ * NOTE: Copy is intentionally concise and outcome-focused — refine the metrics
+ * and tech tags as roles evolve.
  */
 export const experiences: Experience[] = [
   {
-    role: "Full-Stack Developer",
-    company: "Freelance / Personal Projects",
-    period: "2023 — Present",
-    location: "Remote",
+    role: "Software Engineer",
+    company: "Evolutionary Algorithms (EVA)",
+    period: "2025 — Present",
+    location: "Bhubaneswar, Odisha, India",
     type: "work",
+    kind: "Full-time",
     current: true,
-    logo: "Code2",
+    logo: "Boxes",
     description:
-      "Designing and shipping full-stack web applications for clients and personal ventures, owning everything from UI to deployment.",
+      "Building a CAD-based product platform — turning complex geometric and engineering workflows into performant, dependable software used by design and manufacturing teams.",
     highlights: [
-      "Built and deployed 10+ MERN-stack and Next.js applications end to end",
-      "Designed reusable component systems and accessible, responsive UIs",
-      "Set up CI/CD and serverless deployments on Vercel with 99.9% uptime",
+      "Develop core product modules with a focus on correctness, performance, and clean architecture",
+      "Collaborate across engineering and design to ship features against real production workloads",
+      "Own components end to end — from design and implementation through testing and release",
     ],
-    tags: ["React", "Next.js", "Node.js", "MongoDB", "Tailwind CSS"],
+    tags: ["Software Engineering", "CAD", "Algorithms", "System Design"],
   },
   {
-    role: "Open Source Contributor",
-    company: "GitHub Community",
-    period: "2022 — Present",
-    location: "Remote",
+    role: "Web Development Head — ASME Student Chapter",
+    company: "ASME, NIT Rourkela",
+    period: "2023 — 2024",
+    location: "Rourkela, India",
     type: "work",
-    current: true,
-    logo: "SiGithub",
-    link: "https://github.com/debasish1452003",
+    kind: "Leadership",
+    logo: "Code2",
     description:
-      "Contributing to open-source projects and maintaining personal repositories used by other developers.",
+      "Led the web team for the ASME student chapter and shipped the chapter's first official website — establishing the digital presence used for events, recruitment, and member engagement.",
     highlights: [
-      "Submitted pull requests to community libraries and tooling",
-      "Maintain well-documented starter templates and utilities",
+      "Designed, built, and launched the chapter's first-ever website (v1 release)",
+      "Led a small web team — set direction, reviewed work, and drove the project to delivery",
+      "Delivered a responsive, accessible site that became the chapter's primary public face",
     ],
-    tags: ["Git", "TypeScript", "Documentation"],
+    tags: ["React", "Next.js", "Tailwind CSS", "Team Leadership"],
   },
   {
     role: "B.Tech, Engineering",
@@ -45,9 +49,10 @@ export const experiences: Experience[] = [
     period: "2021 — 2025",
     location: "Rourkela, India",
     type: "education",
+    kind: "Education",
     logo: "GraduationCap",
     description:
-      "Building a strong foundation in data structures, algorithms, and software engineering alongside hands-on project work.",
+      "Built a strong foundation in data structures, algorithms, and software engineering alongside hands-on project and leadership work.",
     highlights: [
       "Active in coding clubs, hackathons, and competitive programming",
       "Self-taught modern web development alongside the core curriculum",
