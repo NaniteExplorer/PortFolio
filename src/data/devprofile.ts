@@ -30,7 +30,7 @@ export const devAccounts: DevAccount[] = [
     tokenEnv: "GITHUB_TOKEN_PERSONAL",
   },
   {
-    label: "Eva (Office)",
+    label: "EVA",
     username: "Debasishrana14",
     url: "https://github.com/Debasishrana14",
     kind: "Office",

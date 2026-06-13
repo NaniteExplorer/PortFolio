@@ -48,6 +48,7 @@ async function buildDevProfile(): Promise<DevProfileData> {
     accounts,
     totals,
     activity,
+    activityByDay: unified,
     languages,
     syncedAt: new Date().toISOString(),
     liveCount: live.length,

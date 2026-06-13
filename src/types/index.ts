@@ -309,6 +309,8 @@ export interface DevProfileData {
   };
   /** Merged daily contributions across all accounts (most recent last). */
   activity: number[];
+  /** Merged date(ISO)→count map across all accounts — drives the calendar heatmap + year filter. */
+  activityByDay: Record<string, number>;
   /** Language totals merged across accounts. */
   languages: CPDataPoint[];
   /** ISO timestamp of the render. */

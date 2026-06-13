@@ -115,7 +115,8 @@ export function DevView({ data }: { data: DevProfileData }) {
           <motion.div variants={fadeUp}>
             <Card>
               <Heatmap
-                data={data.activity}
+                byDay={data.activityByDay}
+                anchorDate={data.syncedAt}
                 title="Unified Contributions — all accounts"
                 scheme="green"
                 unit="contribution"
