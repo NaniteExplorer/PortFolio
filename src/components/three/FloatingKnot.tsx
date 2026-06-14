@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
-import { Float, MeshDistortMaterial } from "@react-three/drei";
+import { useEffect, useRef } from "react";
+import { MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -11,17 +10,36 @@ import * as THREE from "three";
  * liquid-metal surface.
  */
 export function FloatingKnot() {
+  const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
 
-  useFrame((_, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x += delta * 0.15;
-      meshRef.current.rotation.y += delta * 0.2;
-    }
-  });
+  useEffect(() => {
+    let frameId = 0;
+    let lastTime = performance.now();
+
+    const tick = (time: number) => {
+      const delta = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      if (groupRef.current) {
+        groupRef.current.position.y = Math.sin(time * 0.0015) * 0.18;
+        groupRef.current.rotation.z = Math.sin(time * 0.001) * 0.08;
+      }
+
+      if (meshRef.current) {
+        meshRef.current.rotation.x += delta * 0.15;
+        meshRef.current.rotation.y += delta * 0.2;
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
 
   return (
-    <Float speed={1.5} rotationIntensity={0.6} floatIntensity={1.2}>
+    <group ref={groupRef}>
       <mesh ref={meshRef} scale={1.6}>
         <torusKnotGeometry args={[1, 0.32, 180, 32]} />
         <MeshDistortMaterial
@@ -33,6 +51,6 @@ export function FloatingKnot() {
           speed={1.6}
         />
       </mesh>
-    </Float>
+    </group>
   );
 }

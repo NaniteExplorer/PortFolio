@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 /**
@@ -25,16 +24,25 @@ export function ParticleField({ count = 2500 }: { count?: number }) {
     return arr;
   }, [count]);
 
-  useFrame((state, delta) => {
-    if (!pointsRef.current) return;
-    // Gentle constant rotation.
-    pointsRef.current.rotation.y += delta * 0.04;
-    pointsRef.current.rotation.x += delta * 0.01;
-    // Subtle parallax toward the pointer.
-    const { x, y } = state.pointer;
-    pointsRef.current.rotation.y += x * delta * 0.15;
-    pointsRef.current.rotation.x += -y * delta * 0.15;
-  });
+  useEffect(() => {
+    let frameId = 0;
+    let lastTime = performance.now();
+
+    const tick = (time: number) => {
+      const delta = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      if (pointsRef.current) {
+        pointsRef.current.rotation.y += delta * 0.04;
+        pointsRef.current.rotation.x += delta * 0.01;
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
 
   return (
     <points ref={pointsRef}>

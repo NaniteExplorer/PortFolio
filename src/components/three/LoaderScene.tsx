@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useEffect, useMemo, useRef } from "react";
+import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
@@ -11,20 +11,33 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
  * indicator so the wait feels like part of the site rather than a generic
  * spinner. Accent-colored (#ff004f) to match the portfolio's signature.
  */
-function Knot() {
-  const ref = useRef<THREE.Group>(null);
+function Knot({ reduced }: { reduced: boolean }) {
+  const groupRef = useRef<THREE.Group>(null);
 
-  useFrame((state, delta) => {
-    if (!ref.current) return;
-    ref.current.rotation.x += delta * 0.7;
-    ref.current.rotation.y += delta * 1.0;
-    // Gentle breathing pulse.
-    const pulse = 1 + Math.sin(state.clock.elapsedTime * 2.4) * 0.07;
-    ref.current.scale.setScalar(pulse);
-  });
+  useEffect(() => {
+    if (reduced) return;
+
+    let frameId = 0;
+    let lastTime = performance.now();
+
+    const tick = (time: number) => {
+      const delta = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      if (groupRef.current) {
+        groupRef.current.rotation.x += delta * 0.45;
+        groupRef.current.rotation.y += delta * 0.65;
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, [reduced]);
 
   return (
-    <group ref={ref}>
+    <group ref={groupRef} rotation={[0.45, 0.7, 0.1]}>
       <mesh>
         <torusKnotGeometry args={[1, 0.34, 110, 16]} />
         <meshStandardMaterial
@@ -42,8 +55,7 @@ function Knot() {
 
 /** A thin halo of points slowly orbiting the knot for extra depth. */
 function OrbitRing({ count = 90 }: { count?: number }) {
-  const ref = useRef<THREE.Points>(null);
-
+  const pointsRef = useRef<THREE.Points>(null);
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -56,12 +68,28 @@ function OrbitRing({ count = 90 }: { count?: number }) {
     return arr;
   }, [count]);
 
-  useFrame((_, delta) => {
-    if (ref.current) ref.current.rotation.y -= delta * 0.5;
-  });
+  useEffect(() => {
+    let frameId = 0;
+    let lastTime = performance.now();
+
+    const tick = (time: number) => {
+      const delta = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      if (pointsRef.current) {
+        pointsRef.current.rotation.y += delta * 1.15;
+        pointsRef.current.rotation.z += delta * 0.2;
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
 
   return (
-    <points ref={ref}>
+    <points ref={pointsRef} rotation={[0.15, 0, -0.25]}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} count={count} />
       </bufferGeometry>
@@ -96,8 +124,16 @@ export default function LoaderScene() {
       <ambientLight intensity={0.7} />
       <pointLight position={[3, 3, 4]} intensity={2} color="#ff004f" />
       <pointLight position={[-4, -2, -3]} intensity={1.2} color="#ffffff" />
-      <Knot />
-      {!reduced && <OrbitRing />}
+      <LoaderContent reduced={reduced} />
     </Canvas>
+  );
+}
+
+function LoaderContent({ reduced }: { reduced: boolean }) {
+  return (
+    <>
+      <Knot reduced={reduced} />
+      {!reduced && <OrbitRing />}
+    </>
   );
 }
