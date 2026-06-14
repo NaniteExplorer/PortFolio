@@ -1,4 +1,5 @@
 import type { AboutContent } from "@/types";
+import { contact } from "@/data/contact";
 
 /**
  * About / bio content. Add paragraphs, focus areas, and headline stats here.
@@ -7,7 +8,7 @@ export const about: AboutContent = {
   heading: "About Me",
   subheading: "Engineering products that feel effortless to use.",
   photo: "https://i.postimg.cc/W3xW2XR4/IMG20230114163238.jpg",
-  location: "Rourkela, India",
+  location: contact.location,
   availability: "Available for new opportunities",
   paragraphs: [
     "I'm a full-stack developer from NIT Rourkela who turns ambiguous ideas into polished, production-ready products. I'm equally at home designing a clean interface, shaping a resilient API, or untangling the gnarly edge cases that decide whether software actually ships.",
