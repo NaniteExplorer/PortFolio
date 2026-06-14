@@ -111,6 +111,8 @@ export async function fetchLeetCode(username: string): Promise<LiveStats | null>
 
     return {
       rating,
+      ratingLabel: "rating",
+      rated: rating != null,
       maxRating,
       contests,
       rank,

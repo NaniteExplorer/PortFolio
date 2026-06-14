@@ -22,7 +22,9 @@ import { fadeUp } from "@/lib/motion";
  */
 export function PlatformCard({ platform }: { platform: CPPlatform }) {
   const color = platform.color ?? brandColors[platform.id] ?? "rgb(var(--accent))";
-  const isRated = platform.rating != null;
+  const isRated = platform.rated ?? platform.rating != null;
+  const practiceValue = platform.solved ?? platform.rating ?? "—";
+  const practiceLabel = platform.solved != null ? "solved" : platform.ratingLabel ?? "stat";
   // Only ring platforms that report a distinct peak — the ring then visualises
   // current-vs-peak progress instead of echoing the current rating shown big.
   const hasPeak = platform.maxRating != null;
@@ -71,7 +73,9 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
                 <span className="text-3xl font-extrabold leading-none tracking-tight">
                   {platform.rating}
                 </span>
-                <span className="text-xs font-medium text-muted">rating</span>
+                <span className="text-xs font-medium text-muted">
+                  {platform.ratingLabel ?? "rating"}
+                </span>
               </div>
               {/* Peak is surfaced by the ring (center) — no redundant text line. */}
             </>
@@ -79,9 +83,9 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
             <>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-3xl font-extrabold leading-none tracking-tight">
-                  {platform.solved ?? "—"}
+                  {practiceValue}
                 </span>
-                <span className="text-xs font-medium text-muted">solved</span>
+                <span className="text-xs font-medium text-muted">{practiceLabel}</span>
               </div>
               <p className="mt-1 text-xs text-muted">Practice profile</p>
             </>
@@ -112,7 +116,9 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
         {isRated && platform.solved != null && (
           <Metric label="Solved" value={platform.solved} />
         )}
-        {platform.contests != null && <Metric label="Contests" value={platform.contests} />}
+        {isRated && platform.contests != null && (
+          <Metric label="Contests" value={platform.contests} />
+        )}
         {platform.metrics?.map((m) => (
           <Metric key={m.label} label={m.label} value={m.value} />
         ))}

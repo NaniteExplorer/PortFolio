@@ -13,10 +13,13 @@ export type DailyMap = Record<string, number>;
 /** Normalized stats for one competitive-programming platform. */
 export interface LiveStats {
   rating?: number;
+  ratingLabel?: string;
+  rated?: boolean;
   maxRating?: number;
   rank?: string;
   solved?: number;
   contests?: number;
+  metrics?: { label: string; value: string | number }[];
   difficulty?: { easy: number; medium: number; hard: number };
   /** Per-day activity for the unified heatmap. */
   daily?: DailyMap;

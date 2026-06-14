@@ -100,5 +100,14 @@ export async function fetchCodeChef(handle: string): Promise<LiveStats | null> {
   }
 
   if (rating == null && solved == null) return null;
-  return { rating, maxRating, solved, rank, contests, daily };
+  return {
+    rating,
+    ratingLabel: "rating",
+    rated: rating != null,
+    maxRating,
+    solved,
+    rank,
+    contests,
+    daily,
+  };
 }

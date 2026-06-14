@@ -253,6 +253,10 @@ export interface CPPlatform {
   color?: string;
   /** Current rating, if the platform is rated. */
   rating?: number;
+  /** Label used for the primary number when it is not a contest rating. */
+  ratingLabel?: string;
+  /** Whether this profile should display contest-rating UI. */
+  rated?: boolean;
   /** Peak rating. */
   maxRating?: number;
   /** Rank / title, e.g. "Knight", "Expert", "4★". */
@@ -299,6 +303,8 @@ export interface CPProfile {
   syncedAt?: string;
   /** Number of platforms whose data came from a live fetch this render. */
   liveCount?: number;
+  /** Number of configured platform sources attempted during live sync. */
+  sourceCount?: number;
 }
 
 /* ───────────────────────────────  Dev Profile (GitHub)  ─────────────────── */

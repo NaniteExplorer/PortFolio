@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -42,13 +41,11 @@ export function FloatingKnot() {
     <group ref={groupRef}>
       <mesh ref={meshRef} scale={1.6}>
         <torusKnotGeometry args={[1, 0.32, 180, 32]} />
-        <MeshDistortMaterial
+        <meshStandardMaterial
           color="#ff004f"
           emissive="#5b0a23"
           roughness={0.18}
           metalness={0.85}
-          distort={0.32}
-          speed={1.6}
         />
       </mesh>
     </group>

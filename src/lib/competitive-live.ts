@@ -5,13 +5,17 @@ import { LiveStats, REVALIDATE, mergeDaily, dailyToSeries } from "./integrations
 import { fetchCodeforces } from "./integrations/codeforces";
 import { fetchLeetCode } from "./integrations/leetcode";
 import { fetchCodeChef } from "./integrations/scrape";
+import { fetchAlgoZenith } from "./integrations/algozenith";
+import { fetchAtCoder } from "./integrations/atcoder";
+import { fetchCodingNinjas } from "./integrations/codingninjas";
+import { fetchGeeksforGeeks } from "./integrations/geeksforgeeks";
 
 /**
  * Live-merge layer for the competitive dashboard. Fetches every platform in
- * parallel and overlays live values on top of the hand-maintained data in
- * `data/competitive.ts` (live wins; static fills the gaps and is the fallback
- * when a source is down). Also stitches per-day activity from the API-backed
- * platforms into ONE unified heatmap series.
+ * parallel and renders only platforms whose data could be retrieved live. This
+ * avoids showing stale hand-maintained numbers as if they were current stats.
+ * Also stitches per-day activity from the API-backed platforms into ONE unified
+ * heatmap series.
  *
  * Cached for REVALIDATE seconds via unstable_cache so the expensive submission
  * reductions run at most once per window, not per request.
@@ -23,19 +27,24 @@ const FETCHERS: Record<string, Fetcher> = {
   codeforces: fetchCodeforces,
   leetcode: fetchLeetCode,
   codechef: fetchCodeChef,
+  geeksforgeeks: fetchGeeksforGeeks,
+  codingninjas: fetchCodingNinjas,
+  atcoder: fetchAtCoder,
+  algozenith: fetchAlgoZenith,
 };
 
 /** Overlay a LiveStats result onto a static platform definition. */
-function mergePlatform(base: CPPlatform, live: LiveStats | null): CPPlatform {
-  if (!live) return { ...base, live: false };
-
+function mergePlatform(base: CPPlatform, live: LiveStats): CPPlatform {
   const merged: CPPlatform = {
     ...base,
-    rating: live.rating ?? base.rating,
-    maxRating: live.maxRating ?? base.maxRating,
-    rank: live.rank ?? base.rank,
-    solved: live.solved ?? base.solved,
-    contests: live.contests ?? base.contests,
+    rating: live.rating,
+    ratingLabel: live.ratingLabel,
+    rated: live.rated,
+    maxRating: live.maxRating,
+    rank: live.rank,
+    solved: live.solved,
+    contests: live.contests,
+    metrics: live.metrics ?? base.metrics,
     live: true,
   };
 
@@ -55,27 +64,28 @@ async function buildLiveCompetitive(): Promise<CPProfile> {
     competitive.platforms.map(async (p) => {
       const fetcher = FETCHERS[p.id];
       const live = fetcher ? await fetcher(p.handle) : null;
-      return { platform: mergePlatform(p, live), live };
+      return { platform: live ? mergePlatform(p, live) : null, live };
     })
   );
 
-  const platforms = results.map((r) => r.platform);
-  const liveCount = results.filter((r) => r.platform.live).length;
+  const platforms = results
+    .map((r) => r.platform)
+    .filter((p): p is CPPlatform => p != null);
+  const liveCount = platforms.length;
 
   // Unified daily activity across every platform that reported per-day data.
   // We keep BOTH the full date→count map (for the year-filterable heatmap) and
   // a trailing-26-week series (graceful fallback / compact view).
   const unified = mergeDaily(...results.map((r) => r.live?.daily));
   const hasDaily = Object.keys(unified).length > 0;
-  const activity = hasDaily ? dailyToSeries(unified, 26) : competitive.activity;
+  const activity = hasDaily ? dailyToSeries(unified, 26) : undefined;
   const activityByDay = hasDaily ? unified : undefined;
 
-  // Global difficulty donut: aggregate live difficulty where present, else keep
-  // the static breakdown.
+  // Global difficulty donut: aggregate only live difficulty where present.
   const liveDifficulties = results
     .map((r) => r.live?.difficulty)
     .filter((d): d is NonNullable<typeof d> => !!d);
-  let difficulty: CPDataPoint[] = competitive.difficulty;
+  let difficulty: CPDataPoint[] = [];
   if (liveDifficulties.length) {
     const sum = liveDifficulties.reduce(
       (a, d) => ({
@@ -99,6 +109,7 @@ async function buildLiveCompetitive(): Promise<CPProfile> {
     activity,
     activityByDay,
     liveCount,
+    sourceCount: competitive.platforms.length,
     syncedAt: new Date().toISOString(),
   };
 }
@@ -106,6 +117,6 @@ async function buildLiveCompetitive(): Promise<CPProfile> {
 /** Cached entry point used by the /competitive page. */
 export const getLiveCompetitive = unstable_cache(
   buildLiveCompetitive,
-  ["competitive-live-v2"],
+  ["competitive-live-v5"],
   { revalidate: REVALIDATE, tags: ["competitive"] }
 );

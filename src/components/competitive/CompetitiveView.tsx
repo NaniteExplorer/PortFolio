@@ -29,6 +29,8 @@ export function CompetitiveView({
   profile: CPProfile;
   stats: Stats;
 }) {
+  const hasCharts = profile.difficulty.length > 0 || stats.solvedByPlatform.length > 0;
+
   return (
     <div className="container min-h-screen pt-32 pb-24">
       {/* Header */}
@@ -54,7 +56,7 @@ export function CompetitiveView({
             <SyncBadge
               syncedAt={profile.syncedAt}
               liveCount={profile.liveCount}
-              total={profile.platforms.length}
+              total={profile.sourceCount ?? profile.platforms.length}
             />
           )}
         </motion.div>
@@ -92,40 +94,54 @@ export function CompetitiveView({
         className="mb-16"
       >
         <SectionTitle icon="Code2" title="Platforms" />
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {profile.platforms.map((p) => (
-            <PlatformCard key={p.id} platform={p} />
-          ))}
-        </div>
+        {profile.platforms.length > 0 ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {profile.platforms.map((p) => (
+              <PlatformCard key={p.id} platform={p} />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <p className="text-sm text-muted">
+              No platform returned live public stats during the latest sync.
+            </p>
+          </Card>
+        )}
       </motion.section>
 
       {/* Charts */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={stagger}
-        className="mb-16 grid gap-5 lg:grid-cols-2"
-      >
-        <motion.div variants={fadeUp}>
-          <Card className="h-full">
-            <div className="mb-6 flex items-center justify-between gap-2">
-              <h3 className="font-bold">Problems by Difficulty</h3>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2/70 px-2.5 py-1 text-xs font-medium text-muted">
-                <BrandIcon name="SiLeetcode" size={13} color="#FFA116" />
-                LeetCode
-              </span>
-            </div>
-            <DonutChart data={profile.difficulty} centerLabel="solved" />
-          </Card>
-        </motion.div>
-        <motion.div variants={fadeUp}>
-          <Card className="h-full">
-            <h3 className="mb-6 font-bold">Problems by Platform</h3>
-            <BarChart data={stats.solvedByPlatform} />
-          </Card>
-        </motion.div>
-      </motion.section>
+      {hasCharts && (
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={stagger}
+          className="mb-16 grid gap-5 lg:grid-cols-2"
+        >
+          {profile.difficulty.length > 0 && (
+            <motion.div variants={fadeUp}>
+              <Card className="h-full">
+                <div className="mb-6 flex items-center justify-between gap-2">
+                  <h3 className="font-bold">Problems by Difficulty</h3>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2/70 px-2.5 py-1 text-xs font-medium text-muted">
+                    <BrandIcon name="SiLeetcode" size={13} color="#FFA116" />
+                    LeetCode
+                  </span>
+                </div>
+                <DonutChart data={profile.difficulty} centerLabel="solved" />
+              </Card>
+            </motion.div>
+          )}
+          {stats.solvedByPlatform.length > 0 && (
+            <motion.div variants={fadeUp}>
+              <Card className="h-full">
+                <h3 className="mb-6 font-bold">Problems by Platform</h3>
+                <BarChart data={stats.solvedByPlatform} />
+              </Card>
+            </motion.div>
+          )}
+        </motion.section>
+      )}
 
       {/* Activity heatmap — unified across every platform with per-day data */}
       {((profile.activityByDay && Object.keys(profile.activityByDay).length > 0) ||

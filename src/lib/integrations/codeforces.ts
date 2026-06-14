@@ -45,6 +45,8 @@ export async function fetchCodeforces(handle: string): Promise<LiveStats | null>
 
     return {
       rating: u.rating,
+      ratingLabel: "rating",
+      rated: u.rating != null,
       maxRating: u.maxRating,
       rank: titleCase(u.rank),
       contests,

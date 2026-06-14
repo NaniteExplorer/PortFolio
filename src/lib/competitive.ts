@@ -8,8 +8,11 @@ import { brandColors } from "@/components/ui/BrandIcon";
  */
 export function cpAggregates(profile: CPProfile) {
   const totalSolved = profile.platforms.reduce((s, p) => s + (p.solved ?? 0), 0);
-  const totalContests = profile.platforms.reduce((s, p) => s + (p.contests ?? 0), 0);
-  const ratedPlatforms = profile.platforms.filter((p) => p.rating != null);
+  const totalContests = profile.platforms.reduce(
+    (s, p) => s + (p.rated ? p.contests ?? 0 : 0),
+    0
+  );
+  const ratedPlatforms = profile.platforms.filter((p) => p.rated);
 
   // Days with at least one solve, clubbed across every platform. Honest and
   // comparable — unlike a single "peak rating", which means a different tier on
