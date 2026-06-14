@@ -36,6 +36,7 @@ const DATE_ZONE = "UTC";
 
 type CategoryFilter = "all" | DedicationCategory;
 type SourceFilter = "all" | DedicationSource;
+type MonthRange = "all" | "last-12" | string;
 
 function addToMap(map: Record<string, number>, key: string, value: number) {
   map[key] = Math.round(((map[key] ?? 0) + value) * 100) / 100;
@@ -77,20 +78,80 @@ function buildMonthly(events: DedicationEvent[]) {
         year: "2-digit",
         timeZone: DATE_ZONE,
       }),
+      longLabel: new Date(`${month}-01T00:00:00Z`).toLocaleDateString(DATE_LOCALE, {
+        month: "long",
+        year: "numeric",
+        timeZone: DATE_ZONE,
+      }),
       score: scoreLabel(score),
     }));
 }
 
-function buildStory(events: DedicationEvent[], monthly: ReturnType<typeof buildMonthly>, bySource: CPDataPoint[]) {
+function formatFilter(category: CategoryFilter, source: SourceFilter): string {
+  const parts = [
+    category === "all" ? "all categories" : CATEGORY_LABELS[category],
+    source === "all" ? "all sources" : SOURCE_LABELS[source],
+  ];
+  return parts.join(" from ");
+}
+
+function monthRangeLabel(range: MonthRange, monthly: ReturnType<typeof buildMonthly>): string {
+  if (range === "last-12") return "Last 12 months";
+  if (range !== "all") return range;
+  const first = monthly[0];
+  const last = monthly[monthly.length - 1];
+  if (!first || !last) return "All available months";
+  return `${first.longLabel} - ${last.longLabel}`;
+}
+
+function filterMonthlyByRange(monthly: ReturnType<typeof buildMonthly>, range: MonthRange) {
+  if (range === "last-12") return monthly.slice(-12);
+  if (range === "all") return monthly;
+  return monthly.filter((point) => point.month.startsWith(`${range}-`));
+}
+
+function filterEventsByMonthRange(events: DedicationEvent[], visibleMonthly: ReturnType<typeof buildMonthly>) {
+  const months = new Set(visibleMonthly.map((point) => point.month));
+  return events.filter((event) => months.has(event.date.slice(0, 7)));
+}
+
+function buildStory({
+  events,
+  monthly,
+  bySource,
+  byCategory,
+  activeDays,
+  professionalDays,
+  category,
+  source,
+  rangeLabel,
+}: {
+  events: DedicationEvent[];
+  monthly: ReturnType<typeof buildMonthly>;
+  bySource: CPDataPoint[];
+  byCategory: CPDataPoint[];
+  activeDays: number;
+  professionalDays: number;
+  category: CategoryFilter;
+  source: SourceFilter;
+  rangeLabel: string;
+}) {
   const topMonth = monthly.reduce<(typeof monthly)[number] | null>(
     (best, point) => (!best || point.score > best.score ? point : best),
     null
   );
   const topSource = bySource[0];
+  const topCategory = byCategory[0];
   if (!events.length || !topMonth || !topSource) {
-    return "No activity matches this filter yet. Try widening the source or category filters.";
+    return `No activity matches ${formatFilter(category, source)} in ${rangeLabel}. Try widening the filters or choosing another year.`;
   }
-  return `${topMonth.label} is the strongest month in this view, led by ${topSource.label.toLowerCase()} activity with ${topMonth.score} dedication points.`;
+  const professionalState =
+    professionalDays > 0
+      ? `${professionalDays} professional day${professionalDays === 1 ? "" : "s"} are included.`
+      : "Professional days are not present in this view because the office GitHub daily calendar has not synced any matching activity.";
+  return `${rangeLabel}: ${activeDays} active day${activeDays === 1 ? "" : "s"} found. ${topMonth.longLabel} is the strongest month with ${topMonth.score} dedication points, led by ${topSource.label.toLowerCase()} activity${
+    topCategory ? ` and ${topCategory.label.toLowerCase()} work` : ""
+  }. ${professionalState}`;
 }
 
 function buildStreaks(byDay: Record<string, number>, anchorIso: string) {
@@ -118,6 +179,21 @@ function buildStreaks(byDay: Record<string, number>, anchorIso: string) {
 export function DedicationView({ data }: { data: DedicationProfileData }) {
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [source, setSource] = useState<SourceFilter>("all");
+  const [monthRange, setMonthRange] = useState<MonthRange>("last-12");
+
+  const availableCategories = useMemo(() => {
+    const set = new Set<DedicationCategory>();
+    for (const event of data.events) {
+      if (source === "all" || event.source === source) set.add(event.category);
+    }
+    return data.categories.filter((item) => set.has(item));
+  }, [data.categories, data.events, source]);
+
+  const monthYears = useMemo(() => {
+    const set = new Set<string>();
+    for (const event of data.events) set.add(event.date.slice(0, 4));
+    return [...set].sort((a, b) => Number(b) - Number(a));
+  }, [data.events]);
 
   const filtered = useMemo(() => {
     return data.events.filter((event) => {
@@ -138,7 +214,20 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
     const activeDays = Object.values(byDay).filter((value) => value > 0).length;
     const streaks = buildStreaks(byDay, data.syncedAt);
     const monthly = buildMonthly(filtered);
+    const visibleMonthly = filterMonthlyByRange(monthly, monthRange);
+    const visibleEvents = filterEventsByMonthRange(filtered, visibleMonthly);
+    const visibleByDay: Record<string, number> = {};
+    const visibleProfessionalDays = new Set<string>();
+    for (const event of visibleEvents) {
+      addToMap(visibleByDay, event.date, event.score);
+      if (event.category === "professional") visibleProfessionalDays.add(event.date);
+    }
+    const visibleActiveDays = Object.values(visibleByDay).filter((value) => value > 0).length;
     const bySource = buildBreakdown(filtered, "source");
+    const byCategory = buildBreakdown(filtered, "category");
+    const visibleBySource = buildBreakdown(visibleEvents, "source");
+    const visibleByCategory = buildBreakdown(visibleEvents, "category");
+    const rangeLabel = monthRangeLabel(monthRange, visibleMonthly.length ? visibleMonthly : monthly);
     return {
       byDay,
       score,
@@ -147,12 +236,29 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
       bestStreak: streaks.best,
       professionalDays: professionalDays.size,
       monthly,
-      byCategory: buildBreakdown(filtered, "category"),
+      visibleMonthly,
+      rangeLabel,
+      byCategory,
       bySource,
       byLabel: buildBreakdown(filtered, "label").slice(0, 8),
-      story: buildStory(filtered, monthly, bySource),
+      story: buildStory({
+        events: visibleEvents,
+        monthly: visibleMonthly,
+        bySource: visibleBySource,
+        byCategory: visibleByCategory,
+        activeDays: visibleActiveDays,
+        professionalDays: visibleProfessionalDays.size,
+        category,
+        source,
+        rangeLabel,
+      }),
     };
-  }, [data.syncedAt, filtered]);
+  }, [category, data.syncedAt, filtered, monthRange, source]);
+
+  const professionalEmpty =
+    derived.professionalDays === 0 &&
+    data.categories.includes("professional") &&
+    data.confidence.githubLive < data.confidence.githubTotal;
 
   return (
     <div className="container min-h-screen pt-32 pb-24">
@@ -187,10 +293,55 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
         variants={stagger}
         className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4"
       >
-        <StatTile count={derived.score} label="Dedication Score" icon="Gauge" />
-        <StatTile count={derived.activeDays} label="Active Days" icon="CalendarCheck" />
-        <StatTile count={derived.bestStreak} label="Best Streak" icon="Flame" />
-        <StatTile count={derived.professionalDays} label="Professional Days" icon="BriefcaseBusiness" />
+        <StatTile
+          count={derived.score}
+          label="Dedication Score"
+          icon="Gauge"
+          helper="Weighted activity points from synced GitHub and competitive sources."
+        />
+        <StatTile
+          count={derived.activeDays}
+          label="Active Days"
+          icon="CalendarCheck"
+          helper="Days with at least one synced activity after the selected filters."
+        />
+        <StatTile
+          count={derived.bestStreak}
+          label="Best Streak"
+          icon="Flame"
+          helper="Longest run of consecutive active days in this filtered view."
+        />
+        <StatTile
+          count={derived.professionalDays}
+          label="Professional Days"
+          icon="BriefcaseBusiness"
+          helper="Days from office/professional GitHub activity only."
+        />
+      </motion.section>
+
+      <motion.section initial="hidden" whileInView="visible" viewport={viewportOnce} variants={stagger} className="mb-8">
+        <motion.div variants={fadeUp}>
+          <Card className="border-accent/20 bg-accent/5">
+            <div className="grid gap-3 text-sm text-muted md:grid-cols-[1fr_auto] md:items-center">
+              <div>
+                <p className="font-semibold text-fg">Source health</p>
+                <p className="mt-1">
+                  GitHub synced {data.confidence.githubLive}/{data.confidence.githubTotal} accounts.
+                  Competitive synced {data.confidence.competitiveLive}/{data.confidence.competitiveTotal} sources.
+                </p>
+                {professionalEmpty && (
+                  <p className="mt-2">
+                    Professional Days is 0 because the EVA/office GitHub account is classified as Professional, but no
+                    synced daily professional activity is available for this view.
+                  </p>
+                )}
+              </div>
+              <span className="rounded-full border border-accent/25 bg-surface px-3 py-1 text-xs font-semibold text-accent">
+                Honest synced data only
+              </span>
+            </div>
+          </Card>
+        </motion.div>
       </motion.section>
 
       <motion.section
@@ -215,7 +366,7 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
                   value={category}
                   options={[
                     ["all", "All"],
-                    ...data.categories.map((item) => [item, CATEGORY_LABELS[item]] as const),
+                    ...availableCategories.map((item) => [item, CATEGORY_LABELS[item]] as const),
                   ]}
                   onChange={(value) => setCategory(value as CategoryFilter)}
                 />
@@ -263,8 +414,23 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
       >
         <motion.div variants={fadeUp}>
           <Card className="h-full">
-            <h3 className="mb-6 font-bold">Monthly Trend</h3>
-            <MonthlyTrendChart data={derived.monthly} />
+            <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="font-bold">Monthly Trend</h3>
+                <p className="mt-1 text-sm text-muted">Score by month for the selected category, source, and year range.</p>
+              </div>
+              <FilterGroup
+                label="Year"
+                value={monthRange}
+                options={[
+                  ["last-12", "Last 12 mo"],
+                  ["all", "All"],
+                  ...monthYears.map((year) => [year, year] as const),
+                ]}
+                onChange={(value) => setMonthRange(value)}
+              />
+            </div>
+            <MonthlyTrendChart data={derived.visibleMonthly} rangeLabel={derived.rangeLabel} />
           </Card>
         </motion.div>
         <motion.div variants={fadeUp}>
@@ -289,9 +455,21 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
         variants={stagger}
         className="mb-16 grid gap-5 lg:grid-cols-3"
       >
-        <Breakdown title="By Category" data={derived.byCategory} />
-        <Breakdown title="By Source" data={derived.bySource} />
-        <Breakdown title="By Account / Platform" data={derived.byLabel} />
+        <Breakdown
+          title="Work Type"
+          description="What kind of activity the score represents, such as Professional or Personal."
+          data={derived.byCategory}
+        />
+        <Breakdown
+          title="Data Source"
+          description="Where the activity was measured, such as GitHub or Competitive."
+          data={derived.bySource}
+        />
+        <Breakdown
+          title="Account / Platform"
+          description="Which GitHub account or coding platform contributed most to this view."
+          data={derived.byLabel}
+        />
       </motion.section>
 
       <motion.section initial="hidden" whileInView="visible" viewport={viewportOnce} variants={stagger}>
@@ -366,11 +544,20 @@ function FilterGroup({
   );
 }
 
-function Breakdown({ title, data }: { title: string; data: CPDataPoint[] }) {
+function Breakdown({
+  title,
+  description,
+  data,
+}: {
+  title: string;
+  description: string;
+  data: CPDataPoint[];
+}) {
   return (
     <motion.div variants={fadeUp}>
       <Card className="h-full">
-        <h3 className="mb-6 font-bold">{title}</h3>
+        <h3 className="font-bold">{title}</h3>
+        <p className="mb-6 mt-1 text-sm text-muted">{description}</p>
         {data.length > 0 ? <BarChart data={data} /> : <p className="text-sm text-muted">No activity for this filter.</p>}
       </Card>
     </motion.div>

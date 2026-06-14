@@ -19,6 +19,7 @@ export function StatTile({
   count,
   suffix,
   label,
+  helper,
   icon,
   accent,
   className,
@@ -28,6 +29,7 @@ export function StatTile({
   count?: number;
   suffix?: string;
   label: string;
+  helper?: string;
   icon?: IconName;
   /** Optional accent color for the value + icon. */
   accent?: string;
@@ -57,7 +59,10 @@ export function StatTile({
       >
         {count != null ? <CountUp value={count} suffix={suffix} /> : value}
       </p>
-      <p className="mt-1 text-sm text-muted">{label}</p>
+      <p className="mt-1 text-sm text-muted" title={helper}>
+        {label}
+      </p>
+      {helper && <p className="mx-auto mt-2 max-w-44 text-xs leading-5 text-muted">{helper}</p>}
     </motion.div>
   );
 }
