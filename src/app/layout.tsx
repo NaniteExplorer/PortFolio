@@ -18,7 +18,6 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   ...buildMetadata(),
-  // DUMMY favicon — SVG placeholder, swap /public/favicon.svg later.
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },

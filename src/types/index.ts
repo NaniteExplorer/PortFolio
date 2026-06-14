@@ -35,6 +35,23 @@ export interface SocialLink {
   primary?: boolean;
 }
 
+/**
+ * Centralized contact details. Single source of truth for the email address,
+ * home base, and the contact-section intro copy. Social/profile links live in
+ * `data/socials.ts` (which derives its "Email" entry from `email` here).
+ */
+export interface ContactInfo {
+  phone: string;
+  /** Public email address (used for the mailto link and the contact card). */
+  email: string;
+  /** Home base, e.g. "Rourkela, India". */
+  location: string;
+  /** Intro paragraph shown beside the contact form. */
+  blurb: string;
+  /** Header subtitle shown under the "Let's Work Together" title. */
+  subtitle?: string;
+}
+
 /** Call-to-action button used in the hero and elsewhere. */
 export interface CTA {
   label: string;

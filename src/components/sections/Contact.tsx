@@ -7,6 +7,7 @@ import { Section, SectionHeader } from "@/components/ui/Section";
 import { SocialBar } from "@/components/ui/SocialBar";
 import { BrandIcon } from "@/components/ui/BrandIcon";
 import { socials } from "@/data/socials";
+import { contact } from "@/data/contact";
 import { fadeUp } from "@/lib/motion";
 
 type Status = "idle" | "sending" | "success" | "error";
@@ -54,28 +55,27 @@ export function Contact() {
       <SectionHeader
         eyebrow="Get in touch"
         title="Let's Work Together"
-        subtitle="Have a project in mind or just want to say hi? Drop me a message."
+        subtitle={contact.subtitle}
       />
 
       <div className="grid gap-10 md:grid-cols-2">
         <motion.div variants={fadeUp} className="space-y-6">
-          <p className="text-muted">
-            I&apos;m always open to discussing new projects, creative ideas, or
-            opportunities to be part of your vision. Let&apos;s build something
-            great.
-          </p>
+          <p className="text-muted">{contact.blurb}</p>
           <div className="space-y-3 text-sm">
-            <p className="flex items-center gap-3">
+            <a
+              href={`mailto:${contact.email}`}
+              className="flex items-center gap-3 transition-colors hover:text-accent"
+            >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent">
                 <Mail size={18} />
               </span>
-              debasishrana@example.com
-            </p>
+              {contact.email}
+            </a>
             <p className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent">
                 <MapPin size={18} />
               </span>
-              Rourkela, India
+              {contact.location}
             </p>
           </div>
 

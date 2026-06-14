@@ -35,7 +35,6 @@ export const siteConfig: SiteConfig = {
     { label: "Skills", href: "#skills" },
     { label: "Experience", href: "#experience" },
     { label: "Projects", href: "#projects" },
-    { label: "Contact", href: "#contact" },
   ],
 
   blogEnabled: true,

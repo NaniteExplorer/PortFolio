@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Calendar, Clock } from "lucide-react";
 import type { Post } from "@/types";
 import { Badge } from "@/components/ui/Badge";
+import { SmartImage } from "@/components/ui/SmartImage";
 import { formatDate } from "@/lib/utils";
 
 /** Card linking to a blog post. Used on the blog index. */
@@ -14,10 +14,11 @@ export function PostCard({ post }: { post: Post }) {
     >
       {post.cover && (
         <div className="relative aspect-[16/9] overflow-hidden bg-surface-2">
-          <Image
+          <SmartImage
             src={post.cover}
             alt={post.title}
             fill
+            loaderSize="sm"
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />

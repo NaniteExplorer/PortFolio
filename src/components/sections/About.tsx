@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { motion, animate, useInView } from "framer-motion";
 import { Download, MapPin, ArrowRight, Sparkles } from "lucide-react";
 import { about } from "@/data/about";
@@ -10,6 +9,7 @@ import type { Stat } from "@/types";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { SmartImage } from "@/components/ui/SmartImage";
 import { fadeUp } from "@/lib/motion";
 
 /** Live numbers fetched from /api/about-stats (GitHub-derived). */
@@ -112,12 +112,13 @@ export function About() {
           {/* Ambient glow */}
           <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-tr from-accent/30 via-accent/5 to-transparent blur-2xl" />
 
-          <div className="group relative overflow-hidden rounded-[1.75rem] border border-border bg-surface">
-            <Image
+          <div className="group relative aspect-[500/620] overflow-hidden rounded-[1.75rem] border border-border bg-surface">
+            <SmartImage
               src={about.photo}
               alt="Portrait"
               width={500}
               height={620}
+              loaderSize="lg"
               className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               priority={false}
             />

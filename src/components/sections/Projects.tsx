@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ExternalLink, Github, Star } from "lucide-react";
 import { projects } from "@/data/projects";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import { Badge } from "@/components/ui/Badge";
+import { SmartImage } from "@/components/ui/SmartImage";
 import { cn } from "@/lib/utils";
 import { fadeUp } from "@/lib/motion";
 
@@ -75,14 +75,15 @@ export function Projects() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-surface"
+              className="group relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-accent/50"
             >
               {/* Image */}
               <div className="relative aspect-[16/10] overflow-hidden bg-surface-2">
-                <Image
+                <SmartImage
                   src={project.image}
                   alt={project.title}
                   fill
+                  loaderSize="sm"
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
@@ -94,30 +95,32 @@ export function Projects() {
               </div>
 
               {/* Body */}
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold">{project.title}</h3>
+              <div className="flex flex-1 flex-col p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="text-lg font-bold leading-snug">{project.title}</h3>
                   {project.year && (
-                    <span className="text-xs text-muted">{project.year}</span>
+                    <span className="shrink-0 rounded-full border border-border bg-surface-2 px-2.5 py-1 text-xs text-muted">
+                      {project.year}
+                    </span>
                   )}
                 </div>
-                <p className="mt-2 line-clamp-3 text-sm text-muted">
+                <p className="mt-2 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-muted">
                   {project.description}
                 </p>
 
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex min-h-[4.75rem] flex-wrap content-start gap-2">
                   {project.tags.map((t) => (
                     <Badge key={t}>{t}</Badge>
                   ))}
                 </div>
 
-                <div className="mt-5 flex gap-4 text-sm">
+                <div className="mt-auto flex items-center gap-3 border-t border-border/70 pt-5 text-sm">
                   {project.liveUrl && (
                     <a
                       href={project.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-medium text-accent hover:underline"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 font-medium text-accent transition-colors hover:bg-accent hover:text-white"
                     >
                       <ExternalLink size={15} /> Live
                     </a>
@@ -127,7 +130,7 @@ export function Projects() {
                       href={project.repoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-medium text-muted hover:text-fg"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 font-medium text-muted transition-colors hover:border-accent/50 hover:text-fg"
                     >
                       <Github size={15} /> Code
                     </a>
