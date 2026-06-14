@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Code2, Mail, Menu, Trophy, X, type LucideIcon } from "lucide-react";
+import { Activity, Code2, Mail, Menu, Trophy, X, type LucideIcon } from "lucide-react";
 import { siteConfig } from "@/data/config";
 import { useScrolled } from "@/hooks/useScrolled";
 import { useActiveSection } from "@/hooks/useActiveSection";
@@ -25,6 +25,8 @@ export function Navbar() {
   const featureNav: Array<{ label: string; href: string; icon: LucideIcon }> = [];
   if (siteConfig.competitiveEnabled)
     featureNav.push({ label: "Competitive", href: "/competitive", icon: Trophy });
+  if (siteConfig.dedicationEnabled)
+    featureNav.push({ label: "Dedication", href: "/dedication", icon: Activity });
   if (siteConfig.devProfileEnabled)
     featureNav.push({ label: "Dev", href: "/dev", icon: Code2 });
   if (siteConfig.blogEnabled) nav.push({ label: "Blog", href: "/blog" });

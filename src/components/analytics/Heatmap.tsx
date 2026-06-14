@@ -32,6 +32,8 @@ const SCHEMES: Record<Scheme, string[]> = {
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const WEEKDAYS = ["", "Mon", "", "Wed", "", "Fri", ""];
+const DATE_LOCALE = "en-US";
+const DATE_ZONE = "UTC";
 
 function dayKey(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -79,6 +81,10 @@ function colorLevel(count: number, max: number): number {
   if (r > 0.5) return 3;
   if (r > 0.25) return 2;
   return 1;
+}
+
+function formatDate(date: Date, options: Intl.DateTimeFormatOptions): string {
+  return date.toLocaleDateString(DATE_LOCALE, { ...options, timeZone: DATE_ZONE });
 }
 
 /** Longest run of consecutive active days, ending today (current) and ever (best). */
@@ -182,7 +188,7 @@ export function Heatmap({
           {peak.count > 0 && (
             <span>
               <span className="font-bold text-fg">{peak.count}</span> peak day ·{" "}
-              {peak.date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+              {formatDate(peak.date, { month: "short", day: "numeric" })}
             </span>
           )}
         </div>
@@ -226,8 +232,8 @@ export function Heatmap({
                     cell ? (
                       <div
                         key={cell.key}
-                        title={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} · ${cell.date.toLocaleDateString(
-                          undefined,
+                        title={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} · ${formatDate(
+                          cell.date,
                           { weekday: "short", month: "short", day: "numeric", year: "numeric" }
                         )}`}
                         className={`h-3 w-3 rounded-sm ${levelClass[colorLevel(cell.count, max)]} transition-colors hover:ring-1 hover:ring-fg/30`}

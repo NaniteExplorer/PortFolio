@@ -23,6 +23,7 @@ export const siteConfig: SiteConfig = {
     "about",
     "skills",
     "competitive",
+    "dedication",
     "experience",
     "projects",
     // "testimonials" — hidden until real recommendations are available.
@@ -40,6 +41,7 @@ export const siteConfig: SiteConfig = {
   blogEnabled: true,
   competitiveEnabled: true,
   devProfileEnabled: true,
+  dedicationEnabled: true,
 
   analytics: {
     provider: "none", // "vercel" | "plausible" | "none"

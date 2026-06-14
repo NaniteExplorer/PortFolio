@@ -20,6 +20,7 @@ export type SectionId =
   | "about"
   | "skills"
   | "competitive"
+  | "dedication"
   | "experience"
   | "projects"
   | "testimonials"
@@ -375,6 +376,64 @@ export interface DevProfileData {
   liveCount: number;
 }
 
+/* -------------------------------- Dedication -------------------------------- */
+
+export type DedicationSource = "github" | "competitive";
+export type DedicationCategory =
+  | "professional"
+  | "personal"
+  | "freelance"
+  | "open-source"
+  | "learning";
+
+export interface DedicationEvent {
+  source: DedicationSource;
+  category: DedicationCategory;
+  label: string;
+  date: string;
+  count: number;
+  weight: number;
+  score: number;
+}
+
+export interface DedicationMonthlyPoint {
+  month: string;
+  label: string;
+  score: number;
+}
+
+export interface DedicationProfileData {
+  headline: string;
+  summary: string;
+  events: DedicationEvent[];
+  categories: DedicationCategory[];
+  sources: DedicationSource[];
+  byDay: Record<string, number>;
+  monthly: DedicationMonthlyPoint[];
+  breakdowns: {
+    byCategory: CPDataPoint[];
+    bySource: CPDataPoint[];
+    byLabel: CPDataPoint[];
+  };
+  totals: {
+    score: number;
+    rawCount: number;
+    activeDays: number;
+    currentStreak: number;
+    bestStreak: number;
+    professionalDays: number;
+  };
+  badges: string[];
+  story: string;
+  confidence: {
+    githubLive: number;
+    githubTotal: number;
+    competitiveLive: number;
+    competitiveTotal: number;
+  };
+  syncedAt: string;
+}
+
 /** Top-level site configuration. */
 export interface SiteConfig {
   /** Used for <title>, OpenGraph, JSON-LD. */
@@ -399,6 +458,8 @@ export interface SiteConfig {
   competitiveEnabled: boolean;
   /** Toggle the /dev (GitHub dev-profile analytics) route + nav entry. */
   devProfileEnabled: boolean;
+  /** Toggle the /dedication cross-source dedication dashboard. */
+  dedicationEnabled: boolean;
   /** Analytics configuration. */
   analytics: {
     provider: "vercel" | "plausible" | "none";

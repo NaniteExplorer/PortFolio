@@ -1,0 +1,378 @@
+"use client";
+
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
+import type {
+  CPDataPoint,
+  DedicationCategory,
+  DedicationEvent,
+  DedicationProfileData,
+  DedicationSource,
+} from "@/types";
+import { BarChart } from "@/components/analytics/BarChart";
+import { Heatmap } from "@/components/analytics/Heatmap";
+import { MonthlyTrendChart } from "@/components/analytics/MonthlyTrendChart";
+import { StatTile } from "@/components/analytics/StatTile";
+import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
+import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
+
+const CATEGORY_LABELS: Record<DedicationCategory, string> = {
+  professional: "Professional",
+  personal: "Personal",
+  freelance: "Freelance",
+  "open-source": "Open Source",
+  learning: "Learning",
+};
+
+const SOURCE_LABELS: Record<DedicationSource, string> = {
+  github: "GitHub",
+  competitive: "Competitive",
+};
+const DATE_LOCALE = "en-US";
+const DATE_ZONE = "UTC";
+
+type CategoryFilter = "all" | DedicationCategory;
+type SourceFilter = "all" | DedicationSource;
+
+function addToMap(map: Record<string, number>, key: string, value: number) {
+  map[key] = Math.round(((map[key] ?? 0) + value) * 100) / 100;
+}
+
+function scoreLabel(value: number): number {
+  return Math.round(value);
+}
+
+function formatDate(date: Date, options: Intl.DateTimeFormatOptions): string {
+  return date.toLocaleDateString(DATE_LOCALE, { ...options, timeZone: DATE_ZONE });
+}
+
+function buildBreakdown(events: DedicationEvent[], key: "category" | "source" | "label"): CPDataPoint[] {
+  const map = new Map<string, number>();
+  for (const event of events) {
+    const label =
+      key === "category"
+        ? CATEGORY_LABELS[event.category]
+        : key === "source"
+          ? SOURCE_LABELS[event.source]
+          : event.label;
+    map.set(label, (map.get(label) ?? 0) + event.score);
+  }
+  return [...map.entries()]
+    .map(([label, value]) => ({ label, value: scoreLabel(value) }))
+    .sort((a, b) => b.value - a.value);
+}
+
+function buildMonthly(events: DedicationEvent[]) {
+  const map: Record<string, number> = {};
+  for (const event of events) addToMap(map, event.date.slice(0, 7), event.score);
+  return Object.entries(map)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, score]) => ({
+      month,
+      label: new Date(`${month}-01T00:00:00Z`).toLocaleDateString(DATE_LOCALE, {
+        month: "short",
+        year: "2-digit",
+        timeZone: DATE_ZONE,
+      }),
+      score: scoreLabel(score),
+    }));
+}
+
+function buildStory(events: DedicationEvent[], monthly: ReturnType<typeof buildMonthly>, bySource: CPDataPoint[]) {
+  const topMonth = monthly.reduce<(typeof monthly)[number] | null>(
+    (best, point) => (!best || point.score > best.score ? point : best),
+    null
+  );
+  const topSource = bySource[0];
+  if (!events.length || !topMonth || !topSource) {
+    return "No activity matches this filter yet. Try widening the source or category filters.";
+  }
+  return `${topMonth.label} is the strongest month in this view, led by ${topSource.label.toLowerCase()} activity with ${topMonth.score} dedication points.`;
+}
+
+function buildStreaks(byDay: Record<string, number>, anchorIso: string) {
+  const anchor = new Date(anchorIso);
+  let current = 0;
+  for (let d = new Date(anchor); ; d.setUTCDate(d.getUTCDate() - 1)) {
+    const key = d.toISOString().slice(0, 10);
+    if ((byDay[key] ?? 0) <= 0) break;
+    current += 1;
+  }
+
+  const days = Object.keys(byDay).sort();
+  let best = 0;
+  let run = 0;
+  let previousTime = 0;
+  for (const day of days) {
+    const time = Date.parse(`${day}T00:00:00Z`);
+    run = previousTime && time - previousTime === 86400000 ? run + 1 : 1;
+    previousTime = time;
+    best = Math.max(best, run);
+  }
+  return { current, best };
+}
+
+export function DedicationView({ data }: { data: DedicationProfileData }) {
+  const [category, setCategory] = useState<CategoryFilter>("all");
+  const [source, setSource] = useState<SourceFilter>("all");
+
+  const filtered = useMemo(() => {
+    return data.events.filter((event) => {
+      const categoryMatch = category === "all" || event.category === category;
+      const sourceMatch = source === "all" || event.source === source;
+      return categoryMatch && sourceMatch;
+    });
+  }, [category, data.events, source]);
+
+  const derived = useMemo(() => {
+    const byDay: Record<string, number> = {};
+    const professionalDays = new Set<string>();
+    for (const event of filtered) {
+      addToMap(byDay, event.date, event.score);
+      if (event.category === "professional") professionalDays.add(event.date);
+    }
+    const score = scoreLabel(filtered.reduce((sum, event) => sum + event.score, 0));
+    const activeDays = Object.values(byDay).filter((value) => value > 0).length;
+    const streaks = buildStreaks(byDay, data.syncedAt);
+    const monthly = buildMonthly(filtered);
+    const bySource = buildBreakdown(filtered, "source");
+    return {
+      byDay,
+      score,
+      activeDays,
+      currentStreak: streaks.current,
+      bestStreak: streaks.best,
+      professionalDays: professionalDays.size,
+      monthly,
+      byCategory: buildBreakdown(filtered, "category"),
+      bySource,
+      byLabel: buildBreakdown(filtered, "label").slice(0, 8),
+      story: buildStory(filtered, monthly, bySource),
+    };
+  }, [data.syncedAt, filtered]);
+
+  return (
+    <div className="container min-h-screen pt-32 pb-24">
+      <motion.header initial="hidden" animate="visible" variants={stagger} className="mb-14 max-w-3xl">
+        <motion.div variants={fadeUp}>
+          <Link href="/#dedication" className="inline-flex items-center gap-2 text-sm text-muted hover:text-accent">
+            <ArrowLeft size={16} /> Back to portfolio
+          </Link>
+        </motion.div>
+        <motion.p variants={fadeUp} className="mb-3 mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-accent">
+          Cross-source Consistency
+        </motion.p>
+        <motion.h1 variants={fadeUp} className="text-4xl font-bold tracking-tight md:text-5xl">
+          {data.headline}
+        </motion.h1>
+        <motion.p variants={fadeUp} className="mt-4 text-muted">
+          {data.summary}
+        </motion.p>
+        <motion.div variants={fadeUp} className="mt-6 flex flex-wrap gap-2">
+          {data.badges.map((badge) => (
+            <span key={badge} className="rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+              {badge}
+            </span>
+          ))}
+        </motion.div>
+      </motion.header>
+
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={stagger}
+        className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4"
+      >
+        <StatTile count={derived.score} label="Dedication Score" icon="Gauge" />
+        <StatTile count={derived.activeDays} label="Active Days" icon="CalendarCheck" />
+        <StatTile count={derived.bestStreak} label="Best Streak" icon="Flame" />
+        <StatTile count={derived.professionalDays} label="Professional Days" icon="BriefcaseBusiness" />
+      </motion.section>
+
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={stagger}
+        className="mb-8"
+      >
+        <motion.div variants={fadeUp}>
+          <Card className="bg-gradient-to-br from-surface to-surface-2/45">
+            <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <h2 className="font-bold">Focus The Signal</h2>
+                <p className="mt-1 text-sm text-muted">
+                  Compare professional, personal, freelance, and learning activity without mixing the story into one vague number.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <FilterGroup
+                  label="Category"
+                  value={category}
+                  options={[
+                    ["all", "All"],
+                    ...data.categories.map((item) => [item, CATEGORY_LABELS[item]] as const),
+                  ]}
+                  onChange={(value) => setCategory(value as CategoryFilter)}
+                />
+                <FilterGroup
+                  label="Source"
+                  value={source}
+                  options={[
+                    ["all", "All"],
+                    ...data.sources.map((item) => [item, SOURCE_LABELS[item]] as const),
+                  ]}
+                  onChange={(value) => setSource(value as SourceFilter)}
+                />
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      </motion.section>
+
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={stagger}
+        className="mb-16"
+      >
+        <motion.div variants={fadeUp}>
+          <Card>
+            <Heatmap
+              byDay={derived.byDay}
+              anchorDate={data.syncedAt}
+              title="Dedication Heatmap"
+              scheme="green"
+              unit="dedication point"
+            />
+          </Card>
+        </motion.div>
+      </motion.section>
+
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={stagger}
+        className="mb-16 grid gap-5 lg:grid-cols-[1.3fr_0.7fr]"
+      >
+        <motion.div variants={fadeUp}>
+          <Card className="h-full">
+            <h3 className="mb-6 font-bold">Monthly Trend</h3>
+            <MonthlyTrendChart data={derived.monthly} />
+          </Card>
+        </motion.div>
+        <motion.div variants={fadeUp}>
+          <Card className="h-full">
+            <div className="mb-4 flex items-center gap-2">
+              <Icon name="Sparkles" size={18} className="text-accent" />
+              <h3 className="font-bold">Activity Story</h3>
+            </div>
+            <p className="text-sm leading-6 text-muted">{derived.story}</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Insight label="Current streak" value={`${derived.currentStreak} days`} />
+              <Insight label="Active sources" value={`${derived.bySource.length}`} />
+            </div>
+          </Card>
+        </motion.div>
+      </motion.section>
+
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={stagger}
+        className="mb-16 grid gap-5 lg:grid-cols-3"
+      >
+        <Breakdown title="By Category" data={derived.byCategory} />
+        <Breakdown title="By Source" data={derived.bySource} />
+        <Breakdown title="By Account / Platform" data={derived.byLabel} />
+      </motion.section>
+
+      <motion.section initial="hidden" whileInView="visible" viewport={viewportOnce} variants={stagger}>
+        <motion.div variants={fadeUp}>
+          <Card>
+            <div className="grid gap-6 lg:grid-cols-[1fr_1fr_auto] lg:items-center">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="mt-0.5 text-accent" size={20} />
+                <div>
+                  <h3 className="font-bold">Source Confidence</h3>
+                  <p className="mt-1 text-sm text-muted">
+                    GitHub synced {data.confidence.githubLive}/{data.confidence.githubTotal} accounts.
+                    Competitive synced {data.confidence.competitiveLive}/{data.confidence.competitiveTotal} sources.
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-2xl bg-surface-2/60 p-4 text-sm text-muted">
+                <p className="font-semibold text-fg">Score Formula</p>
+                <p className="mt-1">
+                  count x source/category weight, then summed per day. GitHub personal is 1x,
+                  professional is 1.25x, freelance is 1.15x, and competitive activity is 0.8x.
+                </p>
+              </div>
+              <span className="text-xs text-muted">
+                Synced {formatDate(new Date(data.syncedAt), { month: "short", day: "numeric", year: "numeric" })}
+              </span>
+            </div>
+          </Card>
+        </motion.div>
+      </motion.section>
+    </div>
+  );
+}
+
+function Insight({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="rounded-full bg-surface-2 px-3 py-1 text-xs text-muted">
+      <span className="font-semibold text-fg">{value}</span> {label}
+    </span>
+  );
+}
+
+function FilterGroup({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: readonly (readonly [string, string])[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">{label}</p>
+      <div className="flex flex-wrap gap-1 rounded-full border border-border bg-surface-2/50 p-1">
+        {options.map(([key, text]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onChange(key)}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              value === key ? "bg-accent text-white" : "text-muted hover:text-fg"
+            }`}
+          >
+            {text}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Breakdown({ title, data }: { title: string; data: CPDataPoint[] }) {
+  return (
+    <motion.div variants={fadeUp}>
+      <Card className="h-full">
+        <h3 className="mb-6 font-bold">{title}</h3>
+        {data.length > 0 ? <BarChart data={data} /> : <p className="text-sm text-muted">No activity for this filter.</p>}
+      </Card>
+    </motion.div>
+  );
+}
