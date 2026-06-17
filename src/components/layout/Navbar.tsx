@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Code2, Mail, Menu, Trophy, X, type LucideIcon } from "lucide-react";
+import { Activity, Code2, KeyRound, Mail, Menu, Trophy, X, type LucideIcon } from "lucide-react";
 import { siteConfig } from "@/data/config";
+import type { SiteConfig } from "@/types";
 import { useScrolled } from "@/hooks/useScrolled";
 import { useActiveSection } from "@/hooks/useActiveSection";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -16,23 +17,23 @@ import { cn } from "@/lib/utils";
  * for BOTH in-page anchor sections (home) and standalone routes (/competitive,
  * /dev, /blog). Nav items come from `data/config.ts`.
  */
-export function Navbar() {
+export function Navbar({ config = siteConfig }: { config?: SiteConfig }) {
   const scrolled = useScrolled(50);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const nav = [...siteConfig.nav];
+  const nav = [...config.nav];
   const featureNav: Array<{ label: string; href: string; icon: LucideIcon }> = [];
-  if (siteConfig.competitiveEnabled)
+  if (config.competitiveEnabled)
     featureNav.push({ label: "Competitive", href: "/competitive", icon: Trophy });
-  if (siteConfig.dedicationEnabled)
+  if (config.dedicationEnabled)
     featureNav.push({ label: "Dedication", href: "/dedication", icon: Activity });
-  if (siteConfig.devProfileEnabled)
+  if (config.devProfileEnabled)
     featureNav.push({ label: "Dev", href: "/dev", icon: Code2 });
-  if (siteConfig.blogEnabled) nav.push({ label: "Blog", href: "/blog" });
+  if (config.blogEnabled) nav.push({ label: "Blog", href: "/blog" });
 
   // Observe in-page anchor sections only.
-  const sectionIds = siteConfig.nav
+  const sectionIds = config.nav
     .filter((n) => n.href.startsWith("#"))
     .map((n) => n.href.slice(1));
   const active = useActiveSection(sectionIds);
@@ -62,7 +63,7 @@ export function Navbar() {
             DR
           </span>
           <span className="hidden text-sm font-bold tracking-tight sm:inline">
-            {siteConfig.name.split(" ")[0]}
+            {config.name.split(" ")[0]}
             <span className="text-accent">.</span>
           </span>
         </Link>
@@ -121,6 +122,19 @@ export function Navbar() {
         </div>
 
         <div className="hidden items-center gap-2 lg:flex">
+          <Link
+            href="/owner"
+            aria-label="Owner login"
+            title="Owner login"
+            className={cn(
+              "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors",
+              isActive("/owner")
+                ? "border-accent bg-accent text-white"
+                : "border-border bg-surface/50 text-muted hover:border-accent/50 hover:text-accent"
+            )}
+          >
+            <KeyRound size={16} />
+          </Link>
           <ThemeToggle />
           <Link
             href="/#contact"
@@ -193,6 +207,22 @@ export function Navbar() {
                 })}
               </li>
             )}
+            <li className="mt-2 border-t border-border pt-3">
+              <Link
+                href="/owner"
+                onClick={() => setOpen(false)}
+                aria-current={isActive("/owner") ? "page" : undefined}
+                className={cn(
+                  "inline-flex w-full items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors",
+                  isActive("/owner")
+                    ? "border-accent bg-accent text-white"
+                    : "border-border bg-surface-2/60 text-muted hover:border-accent/40 hover:text-accent"
+                )}
+              >
+                <KeyRound size={15} />
+                Owner
+              </Link>
+            </li>
             <li className="mt-2 flex items-center justify-between border-t border-border px-2 pt-3">
               <SocialBar />
               <Link

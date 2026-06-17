@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { profileSyncConfig } from "@/data/profile-sync";
 
 /**
- * "Live · synced Xm ago" pill with a pulsing dot. Computes the relative time on
+ * "Live synced Xm ago" pill with a pulsing dot. Computes the relative time on
  * the client so it stays correct between ISR revalidations. `liveCount`/`total`
  * communicate how many sources actually returned live data this render.
  */
@@ -33,10 +34,11 @@ export function SyncBadge({
   }, [syncedAt]);
 
   const allLive = liveCount != null && total != null && liveCount === total;
+  const revalidateHours = Math.round(profileSyncConfig.revalidateSeconds / 3600);
 
   return (
     <span
-      title={`Stats are pulled live from each platform's API and refresh automatically — no manual sync needed. Last refreshed ${rel}; the snapshot is rebuilt at most every 12 hours.${
+      title={`Stats are pulled live from each platform's API and refresh automatically. Last refreshed ${rel}; the snapshot is rebuilt at most every ${revalidateHours} hours.${
         liveCount != null && total != null
           ? ` ${liveCount} of ${total} sources responded on the last refresh.`
           : ""
@@ -48,10 +50,10 @@ export function SyncBadge({
         <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
       </span>
       <span className="text-fg">Auto-synced</span>
-      <span>· {rel}</span>
+      <span>&middot; {rel}</span>
       {liveCount != null && total != null && (
         <span className={allLive ? "text-emerald-500" : ""}>
-          · {liveCount}/{total} sources
+          &middot; {liveCount}/{total} sources
         </span>
       )}
     </span>

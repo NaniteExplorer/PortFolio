@@ -7,6 +7,7 @@ import type {
   DedicationProfileData,
   DedicationSource,
 } from "@/types";
+import { profileSyncCacheTags } from "@/data/profile-sync";
 import { getDevProfile } from "@/lib/dev-live";
 import { getLiveCompetitive } from "@/lib/competitive-live";
 import { REVALIDATE } from "@/lib/integrations/types";
@@ -245,5 +246,5 @@ async function buildDedicationProfile(): Promise<DedicationProfileData> {
 export const getDedicationProfile = unstable_cache(
   buildDedicationProfile,
   ["dedication-profile-v1"],
-  { revalidate: REVALIDATE, tags: ["dedication"] }
+  { revalidate: REVALIDATE, tags: [profileSyncCacheTags.dedication] }
 );

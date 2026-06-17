@@ -1,3 +1,5 @@
+import { profileSyncConfig } from "@/data/profile-sync";
+
 /**
  * Shared shapes + helpers for the live-data integration layer.
  *
@@ -26,7 +28,7 @@ export interface LiveStats {
 }
 
 /** How long (seconds) a live fetch is cached before a background refresh. */
-export const REVALIDATE = 60 * 60 * 12; // 12 hours
+export const REVALIDATE = profileSyncConfig.revalidateSeconds;
 
 /** A polite User-Agent — some endpoints reject the default fetch UA. */
 export const UA =

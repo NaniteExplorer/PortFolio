@@ -11,6 +11,7 @@ import { BarChart } from "@/components/analytics/BarChart";
 import { Heatmap } from "@/components/analytics/Heatmap";
 import { PlatformCard } from "@/components/analytics/PlatformCard";
 import { SyncBadge } from "@/components/analytics/SyncBadge";
+import { ProfileRefreshButton } from "@/components/analytics/ProfileRefreshButton";
 import { BrandIcon } from "@/components/ui/BrandIcon";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
@@ -59,6 +60,7 @@ export function CompetitiveView({
               total={profile.sourceCount ?? profile.platforms.length}
             />
           )}
+          <ProfileRefreshButton target="competitive" />
         </motion.div>
         <motion.h1
           variants={fadeUp}

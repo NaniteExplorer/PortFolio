@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import type { DevProfileData, CPDataPoint } from "@/types";
 import { devAccounts, devHeadline, devSummary } from "@/data/devprofile";
+import { profileSyncCacheTags } from "@/data/profile-sync";
 import { fetchGithubAccounts } from "./integrations/github";
 import { REVALIDATE, mergeDaily, dailyToSeries } from "./integrations/types";
 
@@ -58,5 +59,5 @@ async function buildDevProfile(): Promise<DevProfileData> {
 /** Cached entry point used by the /dev page. */
 export const getDevProfile = unstable_cache(buildDevProfile, ["dev-profile-v2"], {
   revalidate: REVALIDATE,
-  tags: ["dev"],
+  tags: [profileSyncCacheTags.dev],
 });

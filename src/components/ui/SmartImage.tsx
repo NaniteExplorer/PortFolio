@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 interface SmartImageProps extends ImageProps {
   /** Size of the overlaid 3D loader. Defaults to "md". */
   loaderSize?: "sm" | "md" | "lg";
+  loaderVariant?: "css" | "three";
 }
 
 /**
@@ -19,6 +20,7 @@ interface SmartImageProps extends ImageProps {
 export function SmartImage({
   className,
   loaderSize = "md",
+  loaderVariant = "three",
   onLoad,
   onError,
   ...props
@@ -47,7 +49,11 @@ export function SmartImage({
       />
       {!loaded && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-2">
-          <Loader3D size={loaderSize} />
+          {loaderVariant === "css" ? (
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-accent/20 border-t-accent" />
+          ) : (
+            <Loader3D size={loaderSize} />
+          )}
         </div>
       )}
     </>

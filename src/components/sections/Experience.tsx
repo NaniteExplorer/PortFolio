@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { experiences } from "@/data/experience";
+import type { Experience as ExperienceItem } from "@/types";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
@@ -19,10 +20,10 @@ import { fadeUp } from "@/lib/motion";
  * Experience timeline. Data lives in `data/experience.ts`; this component only
  * derives summary values and renders the timeline.
  */
-export function Experience() {
-  const workCount = experiences.filter((exp) => exp.type !== "education").length;
-  const educationCount = experiences.filter((exp) => exp.type === "education").length;
-  const currentRole = experiences.find((exp) => exp.current);
+export function Experience({ items = experiences }: { items?: ExperienceItem[] }) {
+  const workCount = items.filter((exp) => exp.type !== "education").length;
+  const educationCount = items.filter((exp) => exp.type === "education").length;
+  const currentRole = items.find((exp) => exp.current);
 
   return (
     <Section id="experience">
@@ -59,10 +60,10 @@ export function Experience() {
       </motion.div>
 
       <div className="relative mx-auto max-w-3xl">
-        <div className="absolute left-[22px] top-2 h-[calc(100%-1rem)] w-px bg-gradient-to-b from-accent/70 via-border to-transparent" />
+        <div className="absolute left-[22px] top-2 hidden h-[calc(100%-1rem)] w-px bg-gradient-to-b from-accent/70 via-border to-transparent md:block" />
 
-        <div className="space-y-8">
-          {experiences.map((exp) => {
+        <div className="-mx-6 flex snap-x gap-4 overflow-x-auto px-6 pb-4 md:mx-0 md:block md:space-y-8 md:overflow-visible md:px-0 md:pb-0">
+          {items.map((exp) => {
             const fallbackIcon = exp.type === "education" ? "GraduationCap" : "Briefcase";
             const TypeIcon = exp.type === "education" ? GraduationCap : BriefcaseBusiness;
 
@@ -70,9 +71,9 @@ export function Experience() {
               <motion.div
                 key={`${exp.company}-${exp.role}`}
                 variants={fadeUp}
-                className="group relative pl-16"
+                className="group relative w-[84vw] max-w-[420px] shrink-0 snap-center md:w-auto md:max-w-none md:pl-16"
               >
-                <span className="absolute left-0 top-0 flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-surface text-accent shadow-sm ring-1 ring-inset ring-white/5">
+                <span className="absolute left-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-surface text-accent shadow-sm ring-1 ring-inset ring-white/5 md:left-0 md:top-0">
                   <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-accent/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   {exp.logo && exp.logo.startsWith("Si") ? (
                     <BrandIcon name={exp.logo} size={20} className="relative" />
@@ -91,7 +92,7 @@ export function Experience() {
                   )}
                 </span>
 
-                <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5">
+                <div className="h-full rounded-2xl border border-border bg-surface p-6 pt-20 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 md:pt-6">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ExternalLink, Github, Star } from "lucide-react";
 import { projects } from "@/data/projects";
+import type { Project } from "@/types";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import { Badge } from "@/components/ui/Badge";
 import { SmartImage } from "@/components/ui/SmartImage";
@@ -14,24 +15,24 @@ import { fadeUp } from "@/lib/motion";
  * Projects gallery with tag filtering. Driven entirely by `data/projects.ts` —
  * add an entry there and it appears here automatically.
  */
-export function Projects() {
+export function Projects({ items = projects }: { items?: Project[] }) {
   const [filter, setFilter] = useState<string>("All");
 
   // Unique tags across all projects, for the filter bar.
   const tags = useMemo(() => {
     const set = new Set<string>();
-    projects.forEach((p) => p.tags.forEach((t) => set.add(t)));
+    items.forEach((p) => p.tags.forEach((t) => set.add(t)));
     return ["All", ...Array.from(set)];
-  }, []);
+  }, [items]);
 
   const filtered = useMemo(() => {
     const list =
       filter === "All"
-        ? projects
-        : projects.filter((p) => p.tags.includes(filter));
+        ? items
+        : items.filter((p) => p.tags.includes(filter));
     // Featured first.
     return [...list].sort((a, b) => Number(b.featured) - Number(a.featured));
-  }, [filter]);
+  }, [filter, items]);
 
   return (
     <Section id="projects">
@@ -44,7 +45,7 @@ export function Projects() {
       {/* Filter bar */}
       <motion.div
         variants={fadeUp}
-        className="mb-10 flex flex-wrap justify-center gap-2"
+        className="-mx-6 mb-8 flex gap-2 overflow-x-auto px-6 pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:px-0 md:mb-10"
       >
         {tags.map((tag) => (
           <button
@@ -52,6 +53,7 @@ export function Projects() {
             onClick={() => setFilter(tag)}
             className={cn(
               "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+              "shrink-0",
               filter === tag
                 ? "border-accent bg-accent text-white"
                 : "border-border text-muted hover:border-accent hover:text-accent"
@@ -64,7 +66,7 @@ export function Projects() {
 
       <motion.div
         layout
-        className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        className="-mx-6 flex snap-x gap-4 overflow-x-auto px-6 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3"
       >
         <AnimatePresence mode="popLayout">
           {filtered.map((project) => (
@@ -75,7 +77,7 @@ export function Projects() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className="group relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-accent/50"
+              className="group relative flex h-full min-h-[500px] w-[82vw] max-w-[360px] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-accent/50 sm:w-auto sm:max-w-none"
             >
               {/* Image */}
               <div className="relative aspect-[16/10] overflow-hidden bg-surface-2">
@@ -84,6 +86,7 @@ export function Projects() {
                   alt={project.title}
                   fill
                   loaderSize="sm"
+                  loaderVariant="css"
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />

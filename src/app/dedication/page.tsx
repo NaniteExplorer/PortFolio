@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { siteConfig } from "@/data/config";
+import { profileSyncConfig } from "@/data/profile-sync";
+import { getAdminSettings, mergeSiteConfig } from "@/lib/admin-settings";
 import { buildMetadata } from "@/lib/seo";
 import { getDedicationProfile } from "@/lib/dedication";
 import { DedicationView } from "@/components/dedication/DedicationView";
@@ -12,10 +13,11 @@ export const metadata: Metadata = buildMetadata({
   path: "/dedication",
 });
 
-export const revalidate = 43200;
+export const revalidate = profileSyncConfig.revalidateSeconds;
 
 export default async function DedicationPage() {
-  if (!siteConfig.dedicationEnabled) notFound();
+  const config = mergeSiteConfig(await getAdminSettings());
+  if (!config.dedicationEnabled) notFound();
 
   const data = await getDedicationProfile();
   return <DedicationView data={data} />;

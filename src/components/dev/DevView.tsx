@@ -8,6 +8,7 @@ import { StatTile } from "@/components/analytics/StatTile";
 import { BarChart } from "@/components/analytics/BarChart";
 import { Heatmap } from "@/components/analytics/Heatmap";
 import { SyncBadge } from "@/components/analytics/SyncBadge";
+import { ProfileRefreshButton } from "@/components/analytics/ProfileRefreshButton";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { BrandIcon } from "@/components/ui/BrandIcon";
@@ -48,6 +49,7 @@ export function DevView({ data }: { data: DevProfileData }) {
             liveCount={data.liveCount}
             total={data.accounts.length}
           />
+          <ProfileRefreshButton target="dev" />
         </motion.div>
         <motion.h1 variants={fadeUp} className="text-4xl font-bold tracking-tight md:text-5xl">
           {data.headline}

@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import type { CPProfile, CPPlatform, CPDataPoint } from "@/types";
-import { competitive } from "@/data/competitive";
+import { profileSyncCacheTags } from "@/data/profile-sync";
+import { getAdminSettings, mergeCompetitive } from "@/lib/admin-settings";
 import { LiveStats, REVALIDATE, mergeDaily, dailyToSeries } from "./integrations/types";
 import { fetchCodeforces } from "./integrations/codeforces";
 import { fetchLeetCode } from "./integrations/leetcode";
@@ -60,8 +61,9 @@ function mergePlatform(base: CPPlatform, live: LiveStats): CPPlatform {
 }
 
 async function buildLiveCompetitive(): Promise<CPProfile> {
+  const competitiveProfile = mergeCompetitive(await getAdminSettings());
   const results = await Promise.all(
-    competitive.platforms.map(async (p) => {
+    competitiveProfile.platforms.map(async (p) => {
       const fetcher = FETCHERS[p.id];
       const live = fetcher ? await fetcher(p.handle) : null;
       return { platform: live ? mergePlatform(p, live) : null, live };
@@ -103,13 +105,13 @@ async function buildLiveCompetitive(): Promise<CPProfile> {
   }
 
   return {
-    ...competitive,
+    ...competitiveProfile,
     platforms,
     difficulty,
     activity,
     activityByDay,
     liveCount,
-    sourceCount: competitive.platforms.length,
+    sourceCount: competitiveProfile.platforms.length,
     syncedAt: new Date().toISOString(),
   };
 }
@@ -118,5 +120,5 @@ async function buildLiveCompetitive(): Promise<CPProfile> {
 export const getLiveCompetitive = unstable_cache(
   buildLiveCompetitive,
   ["competitive-live-v5"],
-  { revalidate: REVALIDATE, tags: ["competitive"] }
+  { revalidate: REVALIDATE, tags: [profileSyncCacheTags.competitive] }
 );

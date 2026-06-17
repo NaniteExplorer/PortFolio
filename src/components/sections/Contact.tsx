@@ -58,29 +58,29 @@ export function Contact() {
         subtitle={contact.subtitle}
       />
 
-      <div className="grid gap-10 md:grid-cols-2">
-        <motion.div variants={fadeUp} className="space-y-6">
+      <div className="grid min-w-0 gap-10 md:grid-cols-2">
+        <motion.div variants={fadeUp} className="min-w-0 space-y-6">
           <p className="text-muted">{contact.blurb}</p>
           <div className="space-y-3 text-sm">
             <a
               href={`mailto:${contact.email}`}
-              className="flex items-center gap-3 transition-colors hover:text-accent"
+              className="flex min-w-0 items-center gap-3 transition-colors hover:text-accent"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent">
                 <Mail size={18} />
               </span>
-              {contact.email}
+              <span className="min-w-0 break-all">{contact.email}</span>
             </a>
-            <p className="flex items-center gap-3">
+            <p className="flex min-w-0 items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent">
                 <MapPin size={18} />
               </span>
-              {contact.location}
+              <span className="min-w-0 break-words">{contact.location}</span>
             </p>
           </div>
 
           {/* Quick-connect channels (primary socials, e.g. WhatsApp/LinkedIn) */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex min-w-0 flex-wrap gap-3">
             {socials
               .filter((s) => s.primary)
               .map((s) => (
@@ -89,7 +89,7 @@ export function Contact() {
                   href={s.href}
                   target={s.href.startsWith("http") ? "_blank" : undefined}
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium transition-colors hover:border-accent hover:text-accent"
+                  className="inline-flex min-w-0 items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium transition-colors hover:border-accent hover:text-accent"
                 >
                   <BrandIcon name={s.icon} fallbackLabel={s.label} size={18} />
                   {s.label}
@@ -100,7 +100,7 @@ export function Contact() {
           <SocialBar />
         </motion.div>
 
-        <motion.form variants={fadeUp} onSubmit={onSubmit} className="space-y-4">
+        <motion.form variants={fadeUp} onSubmit={onSubmit} className="min-w-0 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <input name="name" required placeholder="Your name" className={inputClass} />
             <input

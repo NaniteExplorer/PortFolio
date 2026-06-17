@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/data/config";
+import { getAdminSettings, mergeAbout, mergeSiteConfig } from "@/lib/admin-settings";
 import { buildMetadata, personJsonLd } from "@/lib/seo";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Navbar } from "@/components/layout/Navbar";
@@ -29,13 +30,30 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+function hexToRgbTriplet(hex: string) {
+  const normalized = hex.replace("#", "");
+  if (!/^[0-9a-f]{6}$/i.test(normalized)) return undefined;
+  const value = Number.parseInt(normalized, 16);
+  return `${(value >> 16) & 255} ${(value >> 8) & 255} ${value & 255}`;
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getAdminSettings();
+  const mergedConfig = mergeSiteConfig(settings);
+  const mergedAbout = mergeAbout(settings);
+  const accent = hexToRgbTriplet(settings.theme.accentColor);
+
   return (
-    <html lang="en" className={`${poppins.variable} dark`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${poppins.variable} dark`}
+      style={accent ? ({ "--accent": accent } as React.CSSProperties) : undefined}
+      suppressHydrationWarning
+    >
       <head>
         {/* JSON-LD structured data for rich search results */}
         <script
@@ -46,9 +64,9 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <ScrollProgress />
-          <Navbar />
+          <Navbar config={mergedConfig} />
           <main>{children}</main>
-          <Footer />
+          <Footer config={mergedConfig} aboutContent={mergedAbout} />
         </ThemeProvider>
       </body>
     </html>

@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, animate, useInView } from "framer-motion";
 import { Download, MapPin, ArrowRight, Sparkles } from "lucide-react";
-import { about } from "@/data/about";
+import { about as staticAbout } from "@/data/about";
+import type { AboutContent } from "@/types";
 import { skillGroups } from "@/data/skills";
 import type { Stat } from "@/types";
 import { Section, SectionHeader } from "@/components/ui/Section";
@@ -24,7 +25,7 @@ const TECH_COUNT = new Set(
 ).size;
 
 /** Whole years since `about.codingSince` (min 1). */
-function yearsCoding(): number {
+function yearsCoding(about: AboutContent): number {
   if (!about.codingSince) return 0;
   const start = new Date(about.codingSince);
   if (Number.isNaN(start.getTime())) return 0;
@@ -76,12 +77,13 @@ function StatValue({ value }: { value: string }) {
 }
 
 /** About section — bio, focus areas, live animated stats, resume CTA. Data: `data/about.ts`. */
-export function About() {
+export function About({ content = staticAbout }: { content?: AboutContent }) {
+  const about = content;
   const focusAreas =
     about.focusAreas ??
     about.highlights.map((h) => ({ icon: "Check" as const, title: h, description: "" }));
 
-  const years = useMemo(yearsCoding, []);
+  const years = useMemo(() => yearsCoding(about), [about]);
   const [live, setLive] = useState<LiveStats>({ repos: 0, contributions: 0 });
 
   useEffect(() => {

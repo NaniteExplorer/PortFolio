@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getAdminSettings, mergeSiteConfig } from "@/lib/admin-settings";
 import { getAllPosts } from "@/lib/posts";
 import { buildMetadata } from "@/lib/seo";
 import { PostCard } from "@/components/blog/PostCard";
@@ -10,7 +12,10 @@ export const metadata: Metadata = buildMetadata({
 });
 
 /** Blog index — lists all published posts (server component, SSG). */
-export default function BlogPage() {
+export default async function BlogPage() {
+  const config = mergeSiteConfig(await getAdminSettings());
+  if (!config.blogEnabled) notFound();
+
   const posts = getAllPosts();
 
   return (

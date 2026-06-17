@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { siteConfig } from "@/data/config";
+import { profileSyncConfig } from "@/data/profile-sync";
+import { getAdminSettings, mergeSiteConfig } from "@/lib/admin-settings";
 import { buildMetadata } from "@/lib/seo";
 import { cpAggregates } from "@/lib/competitive";
 import { getLiveCompetitive } from "@/lib/competitive-live";
@@ -14,7 +15,7 @@ export const metadata: Metadata = buildMetadata({
 });
 
 // Refresh the live snapshot at most every 12h (matches the integration cache).
-export const revalidate = 43200;
+export const revalidate = profileSyncConfig.revalidateSeconds;
 
 /**
  * /competitive — full competitive-programming analytics dashboard.
@@ -23,7 +24,8 @@ export const revalidate = 43200;
  * client view for the animated charts. Disabled via `competitiveEnabled`.
  */
 export default async function CompetitivePage() {
-  if (!siteConfig.competitiveEnabled) notFound();
+  const config = mergeSiteConfig(await getAdminSettings());
+  if (!config.competitiveEnabled) notFound();
 
   const profile = await getLiveCompetitive();
   const stats = cpAggregates(profile);

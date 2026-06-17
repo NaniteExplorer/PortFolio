@@ -87,6 +87,10 @@ function formatDate(date: Date, options: Intl.DateTimeFormatOptions): string {
   return date.toLocaleDateString(DATE_LOCALE, { ...options, timeZone: DATE_ZONE });
 }
 
+function formatNumber(value: number): string {
+  return Math.round(value).toLocaleString("en-US");
+}
+
 /** Longest run of consecutive active days, ending today (current) and ever (best). */
 function streaks(cells: Cell[]): { current: number; best: number } {
   let best = 0;
@@ -158,10 +162,11 @@ export function Heatmap({
     const peak = cells.reduce((a, c) => (c.count > a.count ? c : a), cells[0] ?? { count: 0 });
 
     return (
-      <div>
+      <div className="min-w-0">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-sm font-semibold text-fg">{title}</h3>
-          <div className="flex flex-wrap items-center gap-1 rounded-full border border-border bg-surface-2/50 p-1">
+          <div className="max-w-full overflow-x-auto rounded-full border border-border bg-surface-2/50 p-1">
+            <div className="flex min-w-max items-center gap-1">
             {[ROLLING, ...years].map((opt) => (
               <button
                 key={opt}
@@ -176,6 +181,7 @@ export function Heatmap({
                 {opt === ROLLING ? "Last 12 mo" : opt}
               </button>
             ))}
+            </div>
           </div>
         </div>
 
@@ -187,13 +193,14 @@ export function Heatmap({
           <Stat value={best} label="best streak" />
           {peak.count > 0 && (
             <span>
-              <span className="font-bold text-fg">{peak.count}</span> peak day ·{" "}
+              <span className="font-bold text-fg">{formatNumber(peak.count)}</span> peak day ·{" "}
               {formatDate(peak.date, { month: "short", day: "numeric" })}
             </span>
           )}
         </div>
 
-        <div className="overflow-x-auto pb-2">
+        <div className="-mx-3 overflow-x-auto px-3 pb-2 sm:mx-0 sm:px-0">
+          <div className="min-w-max">
           {/* Month labels — same pitch as the grid (w-3 cell + gap-1 = 1rem) */}
           <div className="mb-1 flex gap-1 pl-7">
             {weeks.map((week, wi) => {
@@ -204,7 +211,7 @@ export function Heatmap({
                 firstReal &&
                 (wi === 0 || !prevFirst || prevFirst.date.getUTCMonth() !== firstReal.date.getUTCMonth());
               return (
-                <div key={wi} className="w-3 shrink-0">
+                <div key={wi} className="w-2.5 shrink-0 sm:w-3">
                   {showMonth && (
                     <span className="whitespace-nowrap text-[10px] text-muted">
                       {MONTHS[firstReal!.date.getUTCMonth()]}
@@ -219,7 +226,7 @@ export function Heatmap({
             {/* Weekday labels */}
             <div className="mr-1 flex w-6 flex-col gap-1">
               {WEEKDAYS.map((w, i) => (
-                <span key={i} className="h-3 text-[9px] leading-3 text-muted">
+                <span key={i} className="h-2.5 text-[8px] leading-[10px] text-muted sm:h-3 sm:text-[9px] sm:leading-3">
                   {w}
                 </span>
               ))}
@@ -236,15 +243,16 @@ export function Heatmap({
                           cell.date,
                           { weekday: "short", month: "short", day: "numeric", year: "numeric" }
                         )}`}
-                        className={`h-3 w-3 rounded-sm ${levelClass[colorLevel(cell.count, max)]} transition-colors hover:ring-1 hover:ring-fg/30`}
+                        className={`h-2.5 w-2.5 rounded-sm sm:h-3 sm:w-3 ${levelClass[colorLevel(cell.count, max)]} transition-colors hover:ring-1 hover:ring-fg/30`}
                       />
                     ) : (
-                      <div key={`pad-${wi}-${di}`} className="h-3 w-3 rounded-sm bg-transparent" />
+                      <div key={`pad-${wi}-${di}`} className="h-2.5 w-2.5 rounded-sm bg-transparent sm:h-3 sm:w-3" />
                     )
                   )}
                 </div>
               ))}
             </div>
+          </div>
           </div>
         </div>
 
@@ -262,26 +270,28 @@ export function Heatmap({
   const activeDays = series.filter((d) => d > 0).length;
 
   return (
-    <div>
+    <div className="min-w-0">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-muted">{title}</h3>
         <span className="text-xs text-muted">
-          {total} {unit}s · {activeDays} active days · last {weeks.length} weeks
+          {formatNumber(total)} {unit}s · {activeDays} active days · last {weeks.length} weeks
         </span>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto pb-2">
+      <div className="-mx-3 overflow-x-auto px-3 pb-2 sm:mx-0 sm:px-0">
+        <div className="flex min-w-max gap-1">
         {weeks.map((week, wi) => (
           <div key={wi} className="flex flex-col gap-1">
             {week.map((count, di) => (
               <div
                 key={di}
                 title={`${count} ${unit}${count === 1 ? "" : "s"}`}
-                className={`h-3 w-3 rounded-sm ${levelClass[colorLevel(count, max)]} transition-colors`}
+                className={`h-2.5 w-2.5 rounded-sm sm:h-3 sm:w-3 ${levelClass[colorLevel(count, max)]} transition-colors`}
               />
             ))}
           </div>
         ))}
+        </div>
       </div>
 
       <Legend levelClass={levelClass} />
@@ -292,17 +302,17 @@ export function Heatmap({
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <span>
-      <span className="font-bold text-fg">{value}</span> {label}
+      <span className="font-bold text-fg">{formatNumber(value)}</span> {label}
     </span>
   );
 }
 
 function Legend({ levelClass }: { levelClass: string[] }) {
   return (
-    <div className="mt-3 flex items-center justify-end gap-1.5 text-xs text-muted">
+    <div className="mt-3 flex flex-wrap items-center justify-end gap-1.5 text-xs text-muted">
       <span>Less</span>
       {levelClass.map((c, i) => (
-        <span key={i} className={`h-3 w-3 rounded-sm ${c}`} />
+        <span key={i} className={`h-2.5 w-2.5 rounded-sm sm:h-3 sm:w-3 ${c}`} />
       ))}
       <span>More</span>
     </div>
