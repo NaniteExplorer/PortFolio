@@ -289,6 +289,8 @@ export interface CPProfile {
   difficulty: CPDataPoint[];
   /** Highlight achievements / badges. */
   achievements: CPAchievement[];
+  /** Premium milestone badges derived from live competitive data. */
+  badges?: BadgeAchievement[];
   /**
    * Optional daily activity counts (most recent last) for the heatmap. Each
    * number is a submission/solve count for one day. Trailing-window fallback
@@ -374,6 +376,8 @@ export interface DevProfileData {
   syncedAt: string;
   /** Number of accounts whose data came from a live fetch. */
   liveCount: number;
+  /** Premium milestone badges derived from live GitHub data. */
+  badges?: BadgeAchievement[];
 }
 
 /* -------------------------------- Dedication -------------------------------- */
@@ -402,6 +406,50 @@ export interface DedicationMonthlyPoint {
   score: number;
 }
 
+export type BadgeTrack = "dedication" | "dev" | "competitive" | "monthly" | "prestige";
+export type BadgeTier = "bronze" | "silver" | "gold" | "platinum" | "diamond" | "mythic";
+export type BadgeRarity = "common" | "rare" | "epic" | "legendary" | "ascendant";
+export type BadgeStatus = "earned" | "locked" | "in_progress";
+
+export interface BadgeAchievement {
+  id: string;
+  title: string;
+  description: string;
+  track: BadgeTrack;
+  tier: BadgeTier;
+  rarity: BadgeRarity;
+  status: BadgeStatus;
+  progress: number;
+  target: number;
+  earnedAt?: string;
+  icon: IconName;
+  accent: string;
+  criteriaLabel: string;
+}
+
+export interface DedicationTier {
+  tag: string;
+  name: string;
+  minRating: number;
+  monthlyBenchmark: number;
+  color: string;
+  description: string;
+}
+
+export interface DedicationBenchmark {
+  label: string;
+  value: number;
+  color: string;
+  description: string;
+}
+
+export interface DedicationRatingComponent {
+  label: string;
+  value: number;
+  max: number;
+  hint: string;
+}
+
 export interface DedicationProfileData {
   headline: string;
   summary: string;
@@ -423,7 +471,13 @@ export interface DedicationProfileData {
     bestStreak: number;
     professionalDays: number;
   };
-  badges: string[];
+  badges: BadgeAchievement[];
+  featuredBadges: BadgeAchievement[];
+  dedicationRating: number;
+  dedicationTier: DedicationTier;
+  dedicationBenchmarks: DedicationBenchmark[];
+  dedicationRatingBreakdown: DedicationRatingComponent[];
+  nextTier?: DedicationTier;
   story: string;
   confidence: {
     githubLive: number;

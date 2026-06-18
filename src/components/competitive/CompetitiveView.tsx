@@ -16,6 +16,8 @@ import { BrandIcon } from "@/components/ui/BrandIcon";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { stagger, fadeUp, viewportOnce } from "@/lib/motion";
+import { BadgeGrid, FeaturedBadges } from "@/components/badges/BadgeGrid";
+import { BadgeGuide } from "@/components/badges/BadgeGuide";
 
 type Stats = ReturnType<typeof cpAggregates>;
 
@@ -71,6 +73,11 @@ export function CompetitiveView({
         <motion.p variants={fadeUp} className="mt-4 text-muted">
           {profile.summary}
         </motion.p>
+        {profile.badges && profile.badges.length > 0 && (
+          <motion.div variants={fadeUp} className="mt-6">
+            <FeaturedBadges badges={profile.badges} />
+          </motion.div>
+        )}
       </motion.header>
 
       {/* Headline stats */}
@@ -86,6 +93,41 @@ export function CompetitiveView({
         <StatTile count={stats.totalContests} suffix="+" label="Rated Contests" icon="Trophy" />
         <StatTile count={stats.platformCount} label="Platforms" icon="Layers" />
       </motion.section>
+
+      {profile.badges && profile.badges.length > 0 && (
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={stagger}
+          className="mb-16"
+        >
+          <motion.div variants={fadeUp}>
+            <Card className="overflow-visible border-accent/20 bg-[radial-gradient(circle_at_top_left,rgb(var(--accent)/0.12),transparent_34%),rgb(var(--surface))]">
+              <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Competitive Badges</p>
+                  <h2 className="mt-2 text-2xl font-bold">Arena Trophy Case</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+                    Hard-earned milestones for solved count, contests, platform rank, and competitive consistency.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+                    {profile.badges.filter((badge) => badge.status === "earned").length}/{profile.badges.length} earned
+                  </span>
+                <BadgeGuide
+                  badges={profile.badges}
+                  title="Arena Badge Guide"
+                  description="Competitive badges reward solved volume, rated contest depth, multi-platform standing, and long-term practice. Crown-tier medals are meant to remain rare."
+                />
+                </div>
+              </div>
+              <BadgeGrid badges={profile.badges} />
+            </Card>
+          </motion.div>
+        </motion.section>
+      )}
 
       {/* Platform cards */}
       <motion.section

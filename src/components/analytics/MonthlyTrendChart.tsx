@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { DedicationMonthlyPoint } from "@/types";
+import { useState } from "react";
+import type { DedicationBenchmark, DedicationMonthlyPoint } from "@/types";
 
 const DATE_LOCALE = "en-US";
 const DATE_ZONE = "UTC";
@@ -16,12 +17,21 @@ function formatMonth(month: string, options: Intl.DateTimeFormatOptions): string
 export function MonthlyTrendChart({
   data,
   rangeLabel,
+  benchmarks = [],
 }: {
   data: DedicationMonthlyPoint[];
   rangeLabel?: string;
+  benchmarks?: DedicationBenchmark[];
 }) {
+  const [scale, setScale] = useState<"focus" | "ladder">("focus");
   const points = data;
-  const max = Math.max(...points.map((point) => point.score), 1);
+  const peakScore = Math.max(...points.map((point) => point.score), 1);
+  const focusLimit = Math.max(peakScore * 1.25, benchmarks.find((benchmark) => benchmark.value > peakScore)?.value ?? peakScore);
+  const visibleBenchmarks = benchmarks.filter((benchmark) => benchmark.value > 0 && (scale === "ladder" || benchmark.value <= focusLimit));
+  const max =
+    scale === "ladder"
+      ? Math.max(peakScore, ...benchmarks.map((benchmark) => benchmark.value), 1)
+      : Math.max(peakScore, ...visibleBenchmarks.map((benchmark) => benchmark.value), 1);
   const width = 640;
   const height = 220;
   const padding = 28;
@@ -64,11 +74,39 @@ export function MonthlyTrendChart({
             y2={height - padding}
             className="stroke-border"
           />
+          {visibleBenchmarks.map((benchmark) => {
+            const y = padding + innerHeight - (benchmark.value / max) * innerHeight;
+            if (y < padding - 1 || y > height - padding + 1) return null;
+            return (
+              <g key={benchmark.label}>
+                <line
+                  x1={padding}
+                  y1={y}
+                  x2={width - padding}
+                  y2={y}
+                  stroke={benchmark.color}
+                  strokeDasharray="4 5"
+                  strokeOpacity="0.55"
+                >
+                  <title>{`${benchmark.label}: ${benchmark.value} monthly points`}</title>
+                </line>
+                <text
+                  x={width - padding}
+                  y={Math.max(10, y - 5)}
+                  textAnchor="end"
+                  fill={benchmark.color}
+                  className="text-[10px] font-semibold"
+                >
+                  {benchmark.label}
+                </text>
+              </g>
+            );
+          })}
           <motion.path
             d={path}
             fill="none"
             stroke="rgb(var(--accent))"
-            strokeWidth="3"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
             initial={{ pathLength: 0, opacity: 0 }}
@@ -78,7 +116,7 @@ export function MonthlyTrendChart({
           />
           {coords.map((point) => (
             <g key={point.month}>
-              <circle cx={point.x} cy={point.y} r="4" fill="rgb(var(--accent))">
+              <circle cx={point.x} cy={point.y} r="3" fill="rgb(var(--accent))">
                 <title>{`${formatMonth(point.month, {
                   month: "long",
                   year: "numeric",
@@ -108,6 +146,37 @@ export function MonthlyTrendChart({
           {formatMonth(peak.month, { month: "short", year: "numeric" })} | {points.length} active mo
         </span>
       </div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-muted">
+          {scale === "focus"
+            ? "Focus scale keeps the curve readable and shows nearby tiers."
+            : "Full ladder zooms out to the upper dedication tiers."}
+        </p>
+        <div className="flex rounded-full border border-border bg-surface-2/60 p-1">
+          {(["focus", "ladder"] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setScale(option)}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                scale === option ? "bg-accent text-white" : "text-muted hover:text-fg"
+              }`}
+            >
+              {option === "focus" ? "Focus" : "Full ladder"}
+            </button>
+          ))}
+        </div>
+      </div>
+      {visibleBenchmarks.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted">
+          {visibleBenchmarks.map((benchmark) => (
+            <span key={benchmark.label} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2/60 px-2.5 py-1">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: benchmark.color }} />
+              {benchmark.label}: {benchmark.value}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

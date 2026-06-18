@@ -13,6 +13,8 @@ import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { BrandIcon } from "@/components/ui/BrandIcon";
 import { stagger, fadeUp, viewportOnce } from "@/lib/motion";
+import { BadgeGrid, FeaturedBadges } from "@/components/badges/BadgeGrid";
+import { BadgeGuide } from "@/components/badges/BadgeGuide";
 
 /**
  * /dev — multi-account GitHub analytics dashboard. Clubs every configured
@@ -54,9 +56,14 @@ export function DevView({ data }: { data: DevProfileData }) {
         <motion.h1 variants={fadeUp} className="text-4xl font-bold tracking-tight md:text-5xl">
           {data.headline}
         </motion.h1>
-        <motion.p variants={fadeUp} className="mt-4 text-muted">
+      <motion.p variants={fadeUp} className="mt-4 text-muted">
           {data.summary}
         </motion.p>
+        {data.badges && data.badges.length > 0 && (
+          <motion.div variants={fadeUp} className="mt-6">
+            <FeaturedBadges badges={data.badges} />
+          </motion.div>
+        )}
       </motion.header>
 
       {/* Token notice when nothing synced */}
@@ -88,6 +95,41 @@ export function DevView({ data }: { data: DevProfileData }) {
         <StatTile count={totals.repos} label="Public Repos" icon="FolderGit2" />
         <StatTile count={totals.accounts} label="Accounts Clubbed" icon="Users" />
       </motion.section>
+
+      {data.badges && data.badges.length > 0 && (
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={stagger}
+          className="mb-16"
+        >
+          <motion.div variants={fadeUp}>
+            <Card className="overflow-visible border-accent/20 bg-[radial-gradient(circle_at_top_left,rgb(var(--accent)/0.12),transparent_34%),rgb(var(--surface))]">
+              <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Developer Badges</p>
+                  <h2 className="mt-2 text-2xl font-bold">Engineering Trophy Case</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+                    GitHub milestones for shipping rhythm, contribution volume, repositories, and language breadth.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+                    {data.badges.filter((badge) => badge.status === "earned").length}/{data.badges.length} earned
+                  </span>
+                <BadgeGuide
+                  badges={data.badges}
+                  title="Engineering Badge Guide"
+                  description="Developer badges reward sustained GitHub signal: contribution volume, active-day density, repository breadth, and multi-account sync. The upper medals are intentionally multi-year targets."
+                />
+                </div>
+              </div>
+              <BadgeGrid badges={data.badges} />
+            </Card>
+          </motion.div>
+        </motion.section>
+      )}
 
       {/* Account cards */}
       <motion.section

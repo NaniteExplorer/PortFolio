@@ -10,6 +10,7 @@ import { fetchAlgoZenith } from "./integrations/algozenith";
 import { fetchAtCoder } from "./integrations/atcoder";
 import { fetchCodingNinjas } from "./integrations/codingninjas";
 import { fetchGeeksforGeeks } from "./integrations/geeksforgeeks";
+import { buildCompetitiveBadges } from "@/lib/badges";
 
 /**
  * Live-merge layer for the competitive dashboard. Fetches every platform in
@@ -104,7 +105,7 @@ async function buildLiveCompetitive(): Promise<CPProfile> {
     ];
   }
 
-  return {
+  const profile: CPProfile = {
     ...competitiveProfile,
     platforms,
     difficulty,
@@ -113,6 +114,10 @@ async function buildLiveCompetitive(): Promise<CPProfile> {
     liveCount,
     sourceCount: competitiveProfile.platforms.length,
     syncedAt: new Date().toISOString(),
+  };
+  return {
+    ...profile,
+    badges: buildCompetitiveBadges(profile),
   };
 }
 

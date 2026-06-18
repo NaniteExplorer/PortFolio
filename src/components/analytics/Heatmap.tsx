@@ -199,10 +199,10 @@ export function Heatmap({
           )}
         </div>
 
-        <div className="-mx-3 overflow-x-auto px-3 pb-2 sm:mx-0 sm:px-0">
-          <div className="min-w-max">
+        <div className="pb-2">
+          <div className="[--heat-cell:clamp(5px,calc((100vw-5.5rem)/55),12px)] [--heat-gap:clamp(2px,0.7vw,4px)] sm:[--heat-cell:clamp(8px,calc((100vw-12rem)/55),12px)]">
           {/* Month labels — same pitch as the grid (w-3 cell + gap-1 = 1rem) */}
-          <div className="mb-1 flex gap-1 pl-7">
+          <div className="mb-1 flex pl-7" style={{ gap: "var(--heat-gap)" }}>
             {weeks.map((week, wi) => {
               const firstReal = week.find(Boolean) as Exclude<Cell, null> | undefined;
               const prevWeek = weeks[wi - 1];
@@ -211,7 +211,7 @@ export function Heatmap({
                 firstReal &&
                 (wi === 0 || !prevFirst || prevFirst.date.getUTCMonth() !== firstReal.date.getUTCMonth());
               return (
-                <div key={wi} className="w-2.5 shrink-0 sm:w-3">
+                <div key={wi} className="shrink-0" style={{ width: "var(--heat-cell)" }}>
                   {showMonth && (
                     <span className="whitespace-nowrap text-[10px] text-muted">
                       {MONTHS[firstReal!.date.getUTCMonth()]}
@@ -224,17 +224,21 @@ export function Heatmap({
 
           <div className="flex">
             {/* Weekday labels */}
-            <div className="mr-1 flex w-6 flex-col gap-1">
+            <div className="mr-1 flex w-6 flex-col" style={{ gap: "var(--heat-gap)" }}>
               {WEEKDAYS.map((w, i) => (
-                <span key={i} className="h-2.5 text-[8px] leading-[10px] text-muted sm:h-3 sm:text-[9px] sm:leading-3">
+                <span
+                  key={i}
+                  className="text-[8px] text-muted sm:text-[9px]"
+                  style={{ height: "var(--heat-cell)", lineHeight: "var(--heat-cell)" }}
+                >
                   {w}
                 </span>
               ))}
             </div>
             {/* Week columns */}
-            <div className="flex gap-1">
+            <div className="flex min-w-0" style={{ gap: "var(--heat-gap)" }}>
               {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-1">
+                <div key={wi} className="flex min-w-0 flex-col" style={{ gap: "var(--heat-gap)" }}>
                   {week.map((cell, di) =>
                     cell ? (
                       <div
@@ -243,10 +247,15 @@ export function Heatmap({
                           cell.date,
                           { weekday: "short", month: "short", day: "numeric", year: "numeric" }
                         )}`}
-                        className={`h-2.5 w-2.5 rounded-sm sm:h-3 sm:w-3 ${levelClass[colorLevel(cell.count, max)]} transition-colors hover:ring-1 hover:ring-fg/30`}
+                        className={`rounded-sm ${levelClass[colorLevel(cell.count, max)]} transition-colors hover:ring-1 hover:ring-fg/30`}
+                        style={{ height: "var(--heat-cell)", width: "var(--heat-cell)" }}
                       />
                     ) : (
-                      <div key={`pad-${wi}-${di}`} className="h-2.5 w-2.5 rounded-sm bg-transparent sm:h-3 sm:w-3" />
+                      <div
+                        key={`pad-${wi}-${di}`}
+                        className="rounded-sm bg-transparent"
+                        style={{ height: "var(--heat-cell)", width: "var(--heat-cell)" }}
+                      />
                     )
                   )}
                 </div>
@@ -278,15 +287,19 @@ export function Heatmap({
         </span>
       </div>
 
-      <div className="-mx-3 overflow-x-auto px-3 pb-2 sm:mx-0 sm:px-0">
-        <div className="flex min-w-max gap-1">
+      <div className="pb-2">
+        <div
+          className="flex [--heat-cell:clamp(5px,calc((100vw-4rem)/55),12px)] [--heat-gap:clamp(2px,0.7vw,4px)] sm:[--heat-cell:clamp(8px,calc((100vw-10rem)/55),12px)]"
+          style={{ gap: "var(--heat-gap)" }}
+        >
         {weeks.map((week, wi) => (
-          <div key={wi} className="flex flex-col gap-1">
+          <div key={wi} className="flex flex-col" style={{ gap: "var(--heat-gap)" }}>
             {week.map((count, di) => (
               <div
                 key={di}
                 title={`${count} ${unit}${count === 1 ? "" : "s"}`}
-                className={`h-2.5 w-2.5 rounded-sm sm:h-3 sm:w-3 ${levelClass[colorLevel(count, max)]} transition-colors`}
+                className={`rounded-sm ${levelClass[colorLevel(count, max)]} transition-colors`}
+                style={{ height: "var(--heat-cell)", width: "var(--heat-cell)" }}
               />
             ))}
           </div>

@@ -8,6 +8,7 @@ import { Section, SectionHeader } from "@/components/ui/Section";
 import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { FeaturedBadges } from "@/components/badges/BadgeGrid";
 
 export function DedicationTeaser({ data }: { data: DedicationProfileData }) {
   return (
@@ -25,7 +26,7 @@ export function DedicationTeaser({ data }: { data: DedicationProfileData }) {
         className="grid gap-5"
       >
         <motion.div variants={fadeUp}>
-          <Card className="h-full overflow-hidden border-accent/25">
+          <Card className="h-full overflow-visible border-accent/25">
             <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-2xl">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
@@ -49,6 +50,17 @@ export function DedicationTeaser({ data }: { data: DedicationProfileData }) {
                   <ArrowUpRight size={15} />
                 </Link>
               </div>
+            </div>
+            <div className="mb-6">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                  Featured Badges
+                </p>
+                <Link href="/dedication" className="text-xs font-semibold text-accent hover:text-accent-2">
+                  View all
+                </Link>
+              </div>
+              <FeaturedBadges badges={data.featuredBadges} />
             </div>
             <Heatmap
               byDay={data.byDay}

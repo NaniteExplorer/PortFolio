@@ -11,6 +11,8 @@ import { profileSyncCacheTags } from "@/data/profile-sync";
 import { getDevProfile } from "@/lib/dev-live";
 import { getLiveCompetitive } from "@/lib/competitive-live";
 import { REVALIDATE } from "@/lib/integrations/types";
+import { buildBadges, buildBadgeStats } from "@/lib/badges";
+import { buildDedicationRating } from "@/lib/dedication-rating";
 
 const CATEGORY_COLORS: Record<DedicationCategory, string> = {
   professional: "#3B82F6",
@@ -133,17 +135,6 @@ function buildBreakdown(
     .sort((a, b) => b.value - a.value);
 }
 
-function buildBadges(totalScore: number, activeDays: number, bestStreak: number, bySource: CPDataPoint[]) {
-  const badges: string[] = [];
-  if (bestStreak >= 30) badges.push("30-day streak");
-  else if (bestStreak >= 14) badges.push("Two-week streak");
-  if (activeDays >= 100) badges.push("100 active days");
-  if (totalScore >= 500) badges.push("High-output year");
-  const activeSources = bySource.filter((point) => point.value > 0).length;
-  if (activeSources > 1) badges.push("Balanced builder");
-  return badges.length ? badges : ["Consistency in progress"];
-}
-
 function buildStory(monthly: DedicationMonthlyPoint[], bySource: CPDataPoint[]) {
   const topMonth = monthly.reduce<DedicationMonthlyPoint | null>(
     (best, point) => (!best || point.score > best.score ? point : best),
@@ -212,6 +203,20 @@ async function buildDedicationProfile(): Promise<DedicationProfileData> {
   const byCategory = buildBreakdown(events, "category");
   const bySource = buildBreakdown(events, "source");
   const byLabel = buildBreakdown(events, "label").slice(0, 8);
+  const badgeStats = {
+    ...buildBadgeStats(events, byDay, syncedAt),
+    currentStreak: streaks.current,
+    bestStreak: streaks.best,
+  };
+  const badgeResult = buildBadges({
+    events,
+    byDay,
+    syncedAt,
+    stats: badgeStats,
+    dev,
+    competitive,
+  });
+  const rating = buildDedicationRating(badgeStats);
 
   return {
     headline: "Dedication Graph",
@@ -231,7 +236,13 @@ async function buildDedicationProfile(): Promise<DedicationProfileData> {
       bestStreak: streaks.best,
       professionalDays: professionalDays.size,
     },
-    badges: buildBadges(score, activeDays, streaks.best, bySource),
+    badges: badgeResult.badges,
+    featuredBadges: badgeResult.featuredBadges,
+    dedicationRating: rating.dedicationRating,
+    dedicationTier: rating.dedicationTier,
+    dedicationBenchmarks: rating.dedicationBenchmarks,
+    dedicationRatingBreakdown: rating.dedicationRatingBreakdown,
+    nextTier: rating.nextTier,
     story: buildStory(monthly, bySource),
     confidence: {
       githubLive: dev.liveCount,

@@ -4,6 +4,7 @@ import { devAccounts, devHeadline, devSummary } from "@/data/devprofile";
 import { profileSyncCacheTags } from "@/data/profile-sync";
 import { fetchGithubAccounts } from "./integrations/github";
 import { REVALIDATE, mergeDaily, dailyToSeries } from "./integrations/types";
+import { buildDevBadges } from "@/lib/badges";
 
 /**
  * Aggregates every configured GitHub account into one DevProfileData object:
@@ -43,7 +44,7 @@ async function buildDevProfile(): Promise<DevProfileData> {
     .sort((a, b) => b.value - a.value)
     .slice(0, 8);
 
-  return {
+  const profile: DevProfileData = {
     headline: devHeadline,
     summary: devSummary,
     accounts,
@@ -53,6 +54,10 @@ async function buildDevProfile(): Promise<DevProfileData> {
     languages,
     syncedAt: new Date().toISOString(),
     liveCount: live.length,
+  };
+  return {
+    ...profile,
+    badges: buildDevBadges(profile),
   };
 }
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ShieldCheck, TrendingUp } from "lucide-react";
 import type {
   CPDataPoint,
   DedicationCategory,
@@ -18,6 +18,8 @@ import { StatTile } from "@/components/analytics/StatTile";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
+import { BadgeGrid, FeaturedBadges } from "@/components/badges/BadgeGrid";
+import { BadgeGuide } from "@/components/badges/BadgeGuide";
 
 const CATEGORY_LABELS: Record<DedicationCategory, string> = {
   professional: "Professional",
@@ -268,21 +270,30 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
             <ArrowLeft size={16} /> Back to portfolio
           </Link>
         </motion.div>
-        <motion.p variants={fadeUp} className="mb-3 mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-          Cross-source Consistency
-        </motion.p>
+        <motion.div variants={fadeUp} className="mb-3 mt-6 flex flex-wrap items-center gap-3">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">
+            Cross-source Consistency
+          </p>
+          <span
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.14em]"
+            style={{
+              borderColor: `${data.dedicationTier.color}66`,
+              backgroundColor: `${data.dedicationTier.color}1A`,
+              color: data.dedicationTier.color,
+            }}
+          >
+            {data.dedicationTier.name}
+            <span className="text-[10px] opacity-80">{data.dedicationRating}</span>
+          </span>
+        </motion.div>
         <motion.h1 variants={fadeUp} className="text-4xl font-bold tracking-tight md:text-5xl">
           {data.headline}
         </motion.h1>
         <motion.p variants={fadeUp} className="mt-4 text-muted">
           {data.summary}
         </motion.p>
-        <motion.div variants={fadeUp} className="mt-6 flex flex-wrap gap-2">
-          {data.badges.map((badge) => (
-            <span key={badge} className="rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
-              {badge}
-            </span>
-          ))}
+        <motion.div variants={fadeUp} className="mt-6">
+          <FeaturedBadges badges={data.featuredBadges} />
         </motion.div>
       </motion.header>
 
@@ -291,8 +302,14 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
         whileInView="visible"
         viewport={viewportOnce}
         variants={stagger}
-        className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4"
+        className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5"
       >
+        <StatTile
+          count={data.dedicationRating}
+          label={data.dedicationTier.tag}
+          icon="BadgeCheck"
+          helper={`${data.dedicationTier.name}: ${data.dedicationTier.description}`}
+        />
         <StatTile
           count={derived.score}
           label="Dedication Score"
@@ -317,6 +334,90 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
           icon="BriefcaseBusiness"
           helper="Days from office/professional GitHub activity only."
         />
+      </motion.section>
+
+      <motion.section initial="hidden" whileInView="visible" viewport={viewportOnce} variants={stagger} className="mb-8">
+        <motion.div variants={fadeUp}>
+          <Card className="border-accent/20 bg-[radial-gradient(circle_at_top_right,rgb(var(--accent)/0.12),transparent_35%),rgb(var(--surface))]">
+            <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div className="flex items-start gap-3">
+                <span
+                  className="mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-border bg-surface-2"
+                  style={{ color: data.dedicationTier.color }}
+                >
+                  <TrendingUp size={21} />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Dedication Rating</p>
+                  <h2 className="mt-1 text-2xl font-bold">
+                    {data.dedicationRating} · {data.dedicationTier.name}
+                  </h2>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
+                    Calibrated from yearly score, active days, streaks, professional days, source balance, and monthly peak.
+                    Benchmarks are internal rating lines inspired by productivity frameworks, not fake global averages.
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-border bg-surface-2/60 p-4 text-sm text-muted">
+                <p className="font-semibold text-fg">Next tier</p>
+                <p className="mt-1">
+                  {data.nextTier
+                    ? `${data.nextTier.name} at ${data.nextTier.minRating} rating`
+                    : "Top tier reached"}
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {data.dedicationRatingBreakdown.map((item) => {
+                const ratio = item.max > 0 ? Math.min(100, Math.round((item.value / item.max) * 100)) : 0;
+                return (
+                  <div key={item.label} className="rounded-2xl border border-border bg-surface-2/55 p-4">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-fg">{item.label}</p>
+                      <span className="text-xs font-semibold text-accent">
+                        {item.value}/{item.max}
+                      </span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-surface">
+                      <div className="h-full rounded-full bg-accent" style={{ width: `${ratio}%` }} />
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-muted">{item.hint}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </motion.div>
+      </motion.section>
+
+      <motion.section initial="hidden" whileInView="visible" viewport={viewportOnce} variants={stagger} className="mb-16">
+        <motion.div variants={fadeUp}>
+          <Card className="overflow-visible border-accent/20 bg-[radial-gradient(circle_at_top_left,rgb(var(--accent)/0.14),transparent_34%),rgb(var(--surface))]">
+            <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+                  Achievement Vault
+                </p>
+                <h2 className="mt-2 text-2xl font-bold">Consistency Trophy Case</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+                  Earned and locked milestones for consistency, streaks, active days, monthly discipline, and
+                  long-range dedication. The rarest badges are intentionally heavy.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+                  {data.badges.filter((badge) => badge.status === "earned").length}/{data.badges.length} earned
+                </span>
+              <BadgeGuide
+                badges={data.badges}
+                title="Consistency Badge Guide"
+                description="Dedication badges are designed as long-horizon honours for streaks, active-day density, monthly discipline, and multi-year proof. Many are expected to stay locked for years."
+              />
+              </div>
+            </div>
+            <BadgeGrid badges={data.badges} />
+          </Card>
+        </motion.div>
       </motion.section>
 
       <motion.section initial="hidden" whileInView="visible" viewport={viewportOnce} variants={stagger} className="mb-8">
@@ -430,7 +531,11 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
                 onChange={(value) => setMonthRange(value)}
               />
             </div>
-            <MonthlyTrendChart data={derived.visibleMonthly} rangeLabel={derived.rangeLabel} />
+            <MonthlyTrendChart
+              data={derived.visibleMonthly}
+              rangeLabel={derived.rangeLabel}
+              benchmarks={data.dedicationBenchmarks}
+            />
           </Card>
         </motion.div>
         <motion.div variants={fadeUp}>
