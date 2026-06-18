@@ -27,6 +27,7 @@ export function generateMetadata({ params }: Params): Metadata {
     description: post.excerpt,
     path: `/blog/${post.slug}`,
     image: post.cover,
+    keywords: post.tags,
   });
 }
 

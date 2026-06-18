@@ -10,6 +10,7 @@ export const metadata: Metadata = buildMetadata({
   title: "Owner Dashboard",
   description: "Private owner controls for refreshing portfolio profile data.",
   path: "/owner",
+  noindex: true,
 });
 
 export default async function OwnerPage({

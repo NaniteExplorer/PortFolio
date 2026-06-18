@@ -11,7 +11,7 @@ export const about: AboutContent = {
   location: contact.location,
   availability: "Available for new opportunities",
   paragraphs: [
-    "I'm a full-stack developer from NIT Rourkela who turns ambiguous ideas into polished, production-ready products. I'm equally at home designing a clean interface, shaping a resilient API, or untangling the gnarly edge cases that decide whether software actually ships.",
+    "I'm Debasish Rana, a full-stack developer and competitive programmer from NIT Rourkela who turns ambiguous ideas into polished, production-ready products. I'm equally at home designing a clean interface, shaping a resilient API, or untangling the edge cases that decide whether software actually ships.",
     "I optimize for the long game — maintainable code, thoughtful architecture, and experiences that feel fast and intentional. Performance, accessibility, and the small details are where I spend my attention, because that's what separates a demo from a product people trust.",
   ],
   focusAreas: [

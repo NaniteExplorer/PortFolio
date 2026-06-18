@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/data/config";
 import { getAdminSettings, mergeAbout, mergeSiteConfig } from "@/lib/admin-settings";
-import { buildMetadata, personJsonLd } from "@/lib/seo";
+import { buildMetadata, personJsonLd, websiteJsonLd } from "@/lib/seo";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -55,10 +55,13 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* JSON-LD structured data for rich search results */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd()) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
         />
       </head>
       <body>

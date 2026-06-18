@@ -18,6 +18,7 @@ interface SmartImageProps extends ImageProps {
  * absolute loader overlay fills it.
  */
 export function SmartImage({
+  alt,
   className,
   loaderSize = "md",
   loaderVariant = "three",
@@ -31,6 +32,7 @@ export function SmartImage({
     <>
       <Image
         {...props}
+        alt={alt}
         className={cn(
           "transition-opacity duration-700 ease-out",
           loaded ? "opacity-100" : "opacity-0",

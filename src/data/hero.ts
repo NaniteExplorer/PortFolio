@@ -9,11 +9,11 @@ export const hero: HeroContent = {
   roles: [
     "Full-Stack Developer",
     "React & Next.js Engineer",
-    "UI/UX Enthusiast",
+    "Competitive Programmer",
     "Problem Solver",
   ],
   tagline:
-    "I design and build performant, accessible web experiences end to end — from NIT Rourkela to the world.",
+    "Debasish Rana is a full-stack developer and competitive programmer from NIT Rourkela, designing fast, accessible web experiences end to end.",
   ctas: [
     { label: "View My Work", href: "#projects", variant: "primary" },
     { label: "Get In Touch", href: "#contact", variant: "ghost" },

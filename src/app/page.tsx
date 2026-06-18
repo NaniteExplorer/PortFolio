@@ -1,9 +1,24 @@
+import type { Metadata } from "next";
 import { getAdminSettings, mergeAbout, mergeExperiences, mergeHero, mergeProjects, mergeSiteConfig } from "@/lib/admin-settings";
+import { buildMetadata } from "@/lib/seo";
 import { About } from "@/components/sections/About";
 import { Experience } from "@/components/sections/Experience";
 import { Hero } from "@/components/sections/Hero";
 import { Projects } from "@/components/sections/Projects";
 import { sectionRegistry } from "@/components/sections/registry";
+
+export const metadata: Metadata = buildMetadata({
+  description:
+    "Debasish Rana is a full-stack developer and competitive programmer from NIT Rourkela, building React, Next.js, Node.js, and MERN stack projects.",
+  path: "/",
+  keywords: [
+    "Debasish Rana",
+    "debasishRana",
+    "Debasish NIT Rourkela",
+    "Debasish Rana competitive programmer",
+    "NaniteExplorer",
+  ],
+});
 
 /**
  * Home page. Renders sections in the order defined by `siteConfig.sections`,

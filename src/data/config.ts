@@ -12,8 +12,8 @@ export const siteConfig: SiteConfig = {
   name: "Debasish Rana",
   role: "Full-Stack Web Developer",
   description:
-    "Full-stack developer from NIT Rourkela building fast, accessible web applications with React, Next.js, and Node.js.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://debasishrana.dev",
+    "Debasish Rana is a full-stack developer and competitive programmer from NIT Rourkela, building fast web apps with React, Next.js, and Node.js.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://debasishrana.vercel.app",
   ogImage: "/og.png",
   locale: "en_US",
 
@@ -49,7 +49,12 @@ export const siteConfig: SiteConfig = {
 
   keywords: [
     "Debasish Rana",
+    "debasishRana",
+    "debasish",
+    "NaniteExplorer",
+    "Nanite Explorer",
     "Full-Stack Developer",
+    "Competitive Programmer",
     "React Developer",
     "Next.js",
     "Node.js",

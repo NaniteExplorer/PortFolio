@@ -9,16 +9,22 @@ import { DevView } from "@/components/dev/DevView";
 export const metadata: Metadata = buildMetadata({
   title: "Developer Profile",
   description:
-    "Live engineering analytics — commits, contributions, and languages clubbed across all my GitHub accounts (personal, open-source, and work).",
+    "Debasish Rana's GitHub developer profile across NaniteExplorer and related accounts, including commits, contributions, repositories, and open-source work.",
   path: "/dev",
+  keywords: [
+    "Debasish Rana GitHub",
+    "NaniteExplorer",
+    "Nanite Explorer",
+    "Debasish Rana developer profile",
+    "Debasish Rana open source",
+  ],
 });
 
 // Refresh the aggregated GitHub snapshot at most every 12h.
 export const revalidate = profileSyncConfig.revalidateSeconds;
 
 /**
- * /dev — multi-account GitHub analytics. Aggregates every account in
- * `data/devprofile.ts` server-side, then renders the animated dashboard.
+ * /dev - multi-account GitHub analytics dashboard.
  */
 export default async function DevPage() {
   const config = mergeSiteConfig(await getAdminSettings());

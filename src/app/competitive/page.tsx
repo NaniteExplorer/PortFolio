@@ -8,20 +8,25 @@ import { getLiveCompetitive } from "@/lib/competitive-live";
 import { CompetitiveView } from "@/components/competitive/CompetitiveView";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Competitive Programming",
+  title: "Competitive Programmer",
   description:
-    "Live analytics of my competitive programming journey — ratings, problems solved, and contest history across LeetCode, Codeforces, and CodeChef.",
+    "Debasish Rana's competitive programming profile with live ratings, problems solved, and contest history across LeetCode, Codeforces, CodeChef, AtCoder, and more.",
   path: "/competitive",
+  keywords: [
+    "Debasish Rana competitive programmer",
+    "Debasish Rana Codeforces",
+    "Debasish Rana LeetCode",
+    "Nanite CodeChef",
+    "Nanite AtCoder",
+    "NIT Rourkela competitive programmer",
+  ],
 });
 
 // Refresh the live snapshot at most every 12h (matches the integration cache).
 export const revalidate = profileSyncConfig.revalidateSeconds;
 
 /**
- * /competitive — full competitive-programming analytics dashboard.
- * Server component: fetches a LIVE snapshot (Codeforces/LeetCode/AtCoder APIs +
- * best-effort scrapes), overlaid on the static fallback, then hands data to a
- * client view for the animated charts. Disabled via `competitiveEnabled`.
+ * /competitive - full competitive-programming analytics dashboard.
  */
 export default async function CompetitivePage() {
   const config = mergeSiteConfig(await getAdminSettings());

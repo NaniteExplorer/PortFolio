@@ -9,8 +9,13 @@ import { DedicationView } from "@/components/dedication/DedicationView";
 export const metadata: Metadata = buildMetadata({
   title: "Dedication Graph",
   description:
-    "A unified dedication dashboard combining GitHub contributions, professional work, and competitive programming activity over time.",
+    "A unified activity dashboard for Debasish Rana, combining GitHub contributions, professional work, and competitive programming activity over time.",
   path: "/dedication",
+  keywords: [
+    "Debasish Rana dedication graph",
+    "Debasish Rana GitHub contributions",
+    "Debasish Rana competitive programming activity",
+  ],
 });
 
 export const revalidate = profileSyncConfig.revalidateSeconds;

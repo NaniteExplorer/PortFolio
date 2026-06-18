@@ -7,8 +7,15 @@ import { PostCard } from "@/components/blog/PostCard";
 
 export const metadata: Metadata = buildMetadata({
   title: "Blog",
-  description: "Articles on web development, Next.js, Three.js, and more.",
+  description:
+    "Articles by Debasish Rana on web development, Next.js, Three.js, competitive programming, and software engineering.",
   path: "/blog",
+  keywords: [
+    "Debasish Rana blog",
+    "Debasish Rana articles",
+    "Next.js blog",
+    "competitive programming blog",
+  ],
 });
 
 /** Blog index — lists all published posts (server component, SSG). */

@@ -1,25 +1,15 @@
 import type { DevAccount } from "@/types";
 
 /**
- * ───────────────────────────────────────────────────────────────────────────
- *  DEV PROFILE — your GitHub accounts, aggregated on /dev.
- * ───────────────────────────────────────────────────────────────────────────
- *  Add every account whose activity you want clubbed together (personal,
- *  freelance, office…). The page sums commits/contributions and merges each
- *  account's contribution calendar into one heatmap.
+ * DEV PROFILE - GitHub accounts aggregated on /dev.
  *
- *  TOKENS (for PRIVATE contributions): set one Personal Access Token per
- *  account in your environment (locally in `.env.local`, in production via
- *  Vercel → Settings → Environment Variables). The var name must match
- *  `tokenEnv` below. Scopes: `read:user` + `repo`. Also enable, per account:
- *  GitHub → Settings → Profile → "Include private contributions on my profile".
- *
- *  Without a token an account simply shows as "not synced" (no public-only
- *  fallback — GitHub's GraphQL API is authenticated-only).
+ * Add every account whose activity you want clubbed together. The page sums
+ * commits/contributions and merges each account's contribution calendar into
+ * one heatmap.
  */
 export const devHeadline = "Developer Profile";
 export const devSummary =
-  "My engineering footprint clubbed across every GitHub account I ship from — personal, open-source, and work — so the real volume of work lives in one place.";
+  "My engineering footprint across NaniteExplorer and every GitHub account I ship from, including personal, open-source, and work contributions.";
 
 export const devAccounts: DevAccount[] = [
   {
