@@ -116,8 +116,7 @@ export function BadgeMedallion({
       className={cn(
         "group/badge relative isolate grid justify-items-center rounded-xl px-3 pb-4 pt-3 outline-none transition-all duration-300 [perspective:900px] hover:z-50 focus-visible:z-50",
         compact ? "min-w-[124px]" : "min-h-[178px]",
-        !locked && "hover:-translate-y-1 focus-visible:-translate-y-1",
-        locked && "opacity-45 saturate-50"
+        !locked && "hover:-translate-y-1 focus-visible:-translate-y-1"
       )}
       aria-label={`${badge.title}: ${badge.criteriaLabel}`}
     >
@@ -137,7 +136,7 @@ export function BadgeMedallion({
           <Star size={14} fill={favorite ? "currentColor" : "none"} />
         </button>
       )}
-      <div className="relative grid justify-items-center">
+      <div className={cn("relative grid justify-items-center transition-opacity", locked && "opacity-45 saturate-50")}>
         <div
           className={cn(
             "absolute top-4 h-16 w-11 rounded-b-md bg-gradient-to-b opacity-80 blur-[0.2px]",
@@ -151,7 +150,7 @@ export function BadgeMedallion({
         />
         <div
           className={cn(
-            "relative z-10 grid place-items-center p-[5px] transition-transform duration-500 [transform-style:preserve-3d] group-hover/badge:[transform:rotateY(-22deg)_rotateX(12deg)_translateZ(10px)] group-focus-visible/badge:[transform:rotateY(-22deg)_rotateX(12deg)_translateZ(10px)]",
+            "relative z-10 grid place-items-center p-[2.5px] transition-transform duration-500 [transform-style:preserve-3d] group-hover/badge:[transform:rotateY(-18deg)_rotateX(10deg)_translateZ(10px)] group-focus-visible/badge:[transform:rotateY(-18deg)_rotateX(10deg)_translateZ(10px)]",
             TIER_SHAPE[badge.tier],
             locked ? "bg-gradient-to-br from-surface-2 via-border to-bg shadow-none" : `bg-gradient-to-br ${style.metal} ${style.glow}`
           )}
@@ -171,7 +170,7 @@ export function BadgeMedallion({
           />
           <div
             className={cn(
-              "relative grid place-items-center border border-white/20 shadow-[inset_0_3px_12px_rgba(255,255,255,0.22),inset_0_-18px_28px_rgba(0,0,0,0.48)]",
+              "relative grid place-items-center border border-white/10 shadow-[inset_0_2px_10px_rgba(255,255,255,0.18),inset_0_-16px_26px_rgba(0,0,0,0.5)]",
               size,
               TIER_INNER_SHAPE[badge.tier],
               locked
@@ -179,13 +178,12 @@ export function BadgeMedallion({
                 : `bg-gradient-to-br ${style.face} ${style.text}`
             )}
           >
-            <div className={cn("absolute inset-[7px] border border-white/15", TIER_INNER_SHAPE[badge.tier])} />
-            <div className={cn("absolute inset-[17px] border border-black/30 bg-black/10", TIER_INNER_SHAPE[badge.tier])} />
-            <div className="absolute left-1/2 top-3 h-8 w-2/3 -translate-x-1/2 rounded-full bg-white/20 blur-md" />
-            <div className="absolute bottom-2 h-5 w-1/2 rounded-full bg-black/20 blur-md" />
+            <div className={cn("absolute inset-[5px] border border-white/[0.08]", TIER_INNER_SHAPE[badge.tier])} />
+            <div className="absolute left-1/2 top-2.5 h-9 w-3/5 -translate-x-1/2 rounded-full bg-white/25 blur-md" />
+            <div className="absolute bottom-2 h-5 w-1/2 rounded-full bg-black/25 blur-md" />
             <div
               className={cn(
-                "relative z-10 grid place-items-center border border-white/20 bg-black/20",
+                "relative z-10 grid place-items-center border border-white/15 bg-black/25 shadow-[inset_0_1px_4px_rgba(255,255,255,0.15)]",
                 badge.track === "competitive" ? "rounded-full" : "rounded-[32%]"
               )}
               style={{

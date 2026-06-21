@@ -20,6 +20,8 @@ import { Icon } from "@/components/ui/Icon";
 import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
 import { BadgeGrid, FeaturedBadges } from "@/components/badges/BadgeGrid";
 import { BadgeGuide } from "@/components/badges/BadgeGuide";
+import { RatingBands } from "@/components/dedication/RatingBands";
+import { monthlyTiers } from "@/lib/dedication-rating";
 
 const CATEGORY_LABELS: Record<DedicationCategory, string> = {
   professional: "Professional",
@@ -151,9 +153,24 @@ function buildStory({
     professionalDays > 0
       ? `${professionalDays} professional day${professionalDays === 1 ? "" : "s"} are included.`
       : "Professional days are not present in this view because the office GitHub daily calendar has not synced any matching activity.";
+
+  // Momentum read from the last two visible months — keeps the story honest
+  // about whether the rhythm is climbing, holding, or cooling.
+  const momentum = (() => {
+    if (monthly.length < 2) return "";
+    const last = monthly[monthly.length - 1].score;
+    const prev = monthly[monthly.length - 2].score;
+    if (prev === 0 && last === 0) return "";
+    const delta = last - prev;
+    const pct = prev > 0 ? Math.round((delta / prev) * 100) : 100;
+    if (delta > 0) return ` Momentum is climbing — the latest month is up ${Math.abs(pct)}% over the previous one.`;
+    if (delta < 0) return ` The latest month cooled ${Math.abs(pct)}% from the previous one — a window to rebuild the streak.`;
+    return " The last two months held steady, signalling a stable rhythm.";
+  })();
+
   return `${rangeLabel}: ${activeDays} active day${activeDays === 1 ? "" : "s"} found. ${topMonth.longLabel} is the strongest month with ${topMonth.score} dedication points, led by ${topSource.label.toLowerCase()} activity${
     topCategory ? ` and ${topCategory.label.toLowerCase()} work` : ""
-  }. ${professionalState}`;
+  }. ${professionalState}${momentum}`;
 }
 
 function buildStreaks(byDay: Record<string, number>, anchorIso: string) {
@@ -367,6 +384,13 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
                 </p>
               </div>
             </div>
+            <div className="mt-6 rounded-2xl border border-border bg-surface-2/40 p-4">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">Rating Ladder</p>
+              <p className="mb-4 text-xs text-muted">
+                Your composite rating across the dedication ranks — cleared ranks fill, your tier glows, locked ranks wait ahead.
+              </p>
+              <RatingBands rating={data.dedicationRating} />
+            </div>
             <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {data.dedicationRatingBreakdown.map((item) => {
                 const ratio = item.max > 0 ? Math.min(100, Math.round((item.value / item.max) * 100)) : 0;
@@ -534,7 +558,7 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
             <MonthlyTrendChart
               data={derived.visibleMonthly}
               rangeLabel={derived.rangeLabel}
-              benchmarks={data.dedicationBenchmarks}
+              tiers={monthlyTiers()}
             />
           </Card>
         </motion.div>
@@ -547,6 +571,10 @@ export function DedicationView({ data }: { data: DedicationProfileData }) {
             <p className="text-sm leading-6 text-muted">{derived.story}</p>
             <div className="mt-5 flex flex-wrap gap-2">
               <Insight label="Current streak" value={`${derived.currentStreak} days`} />
+              <Insight label="Best streak" value={`${derived.bestStreak} days`} />
+              {derived.byCategory[0] && (
+                <Insight label="Top focus" value={derived.byCategory[0].label} />
+              )}
               <Insight label="Active sources" value={`${derived.bySource.length}`} />
             </div>
           </Card>

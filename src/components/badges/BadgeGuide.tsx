@@ -46,7 +46,7 @@ export function BadgeGuide({
         Badge tiers
       </button>
       {open && (
-        <div className="absolute left-0 top-full z-[90] mt-3 w-[min(92vw,680px)] rounded-2xl border border-border bg-surface p-4 text-sm text-muted shadow-[0_24px_80px_-24px_rgba(0,0,0,0.72)]">
+        <div className="absolute right-0 top-full z-[90] mt-3 max-h-[70vh] w-[min(90vw,640px)] overflow-y-auto rounded-2xl border border-border bg-surface p-4 text-sm text-muted shadow-[0_24px_80px_-24px_rgba(0,0,0,0.72)]">
           <div className="mb-3 flex items-center gap-2 font-semibold text-fg">
             <Info size={17} className="text-accent" />
             {title}

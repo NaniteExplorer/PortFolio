@@ -26,6 +26,9 @@ const QUERY = /* GraphQL */ `
       rating
       attendedContestsCount
       topPercentage
+      badge {
+        name
+      }
     }
     userContestRankingHistory(username: $u) {
       attended
@@ -81,6 +84,9 @@ export async function fetchLeetCode(username: string): Promise<LiveStats | null>
       ranking?.topPercentage != null
         ? `Top ${ranking.topPercentage.toFixed(1)}%`
         : undefined;
+    // LeetCode's contest honorific — "Knight" (top 25%) or "Guardian" (top ~5%).
+    // Exposed only when the user currently holds it, so it's truly dynamic.
+    const contestBadge: string | undefined = ranking?.badge?.name ?? undefined;
 
     // Peak rating = highest rating across all attended contests. LeetCode has no
     // maxRating field, so we derive it from the rating history.
@@ -116,6 +122,7 @@ export async function fetchLeetCode(username: string): Promise<LiveStats | null>
       maxRating,
       contests,
       rank,
+      contestBadge,
       solved,
       difficulty: { easy, medium, hard },
       daily: Object.keys(daily).length ? daily : undefined,

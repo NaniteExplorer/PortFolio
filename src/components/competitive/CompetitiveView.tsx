@@ -6,13 +6,12 @@ import { ArrowLeft } from "lucide-react";
 import type { CPProfile } from "@/types";
 import type { cpAggregates } from "@/lib/competitive";
 import { StatTile } from "@/components/analytics/StatTile";
-import { DonutChart } from "@/components/analytics/DonutChart";
 import { BarChart } from "@/components/analytics/BarChart";
+import { RatingComparison } from "@/components/analytics/RatingComparison";
 import { Heatmap } from "@/components/analytics/Heatmap";
 import { PlatformCard } from "@/components/analytics/PlatformCard";
 import { SyncBadge } from "@/components/analytics/SyncBadge";
 import { ProfileRefreshButton } from "@/components/analytics/ProfileRefreshButton";
-import { BrandIcon } from "@/components/ui/BrandIcon";
 import { Icon } from "@/components/ui/Icon";
 import { Card } from "@/components/ui/Card";
 import { stagger, fadeUp, viewportOnce } from "@/lib/motion";
@@ -32,7 +31,10 @@ export function CompetitiveView({
   profile: CPProfile;
   stats: Stats;
 }) {
-  const hasCharts = profile.difficulty.length > 0 || stats.solvedByPlatform.length > 0;
+  const ratedPlatforms = profile.platforms.filter(
+    (p) => (p.rated ?? p.rating != null) && p.rating != null && p.ratingCeiling
+  );
+  const hasCharts = ratedPlatforms.length > 0 || stats.solvedByPlatform.length > 0;
 
   return (
     <div className="container min-h-screen pt-32 pb-24">
@@ -162,17 +164,16 @@ export function CompetitiveView({
           variants={stagger}
           className="mb-16 grid gap-5 lg:grid-cols-2"
         >
-          {profile.difficulty.length > 0 && (
+          {ratedPlatforms.length > 0 && (
             <motion.div variants={fadeUp}>
               <Card className="h-full">
                 <div className="mb-6 flex items-center justify-between gap-2">
-                  <h3 className="font-bold">Problems by Difficulty</h3>
+                  <h3 className="font-bold">Rating Across Platforms</h3>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2/70 px-2.5 py-1 text-xs font-medium text-muted">
-                    <BrandIcon name="SiLeetcode" size={13} color="#FFA116" />
-                    LeetCode
+                    {ratedPlatforms.length} rated
                   </span>
                 </div>
-                <DonutChart data={profile.difficulty} centerLabel="solved" />
+                <RatingComparison platforms={ratedPlatforms} />
               </Card>
             </motion.div>
           )}

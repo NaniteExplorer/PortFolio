@@ -44,6 +44,7 @@ function mergePlatform(base: CPPlatform, live: LiveStats): CPPlatform {
     rated: live.rated,
     maxRating: live.maxRating,
     rank: live.rank,
+    contestBadge: live.contestBadge ?? base.contestBadge,
     solved: live.solved,
     contests: live.contests,
     metrics: live.metrics ?? base.metrics,

@@ -19,6 +19,9 @@ export interface LiveStats {
   rated?: boolean;
   maxRating?: number;
   rank?: string;
+  /** Platform-native contest honorific shown as a premium pill, e.g. LeetCode
+   *  "Knight" / "Guardian". Only set when the source reports it live. */
+  contestBadge?: string;
   solved?: number;
   contests?: number;
   metrics?: { label: string; value: string | number }[];

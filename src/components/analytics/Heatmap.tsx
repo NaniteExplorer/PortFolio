@@ -199,8 +199,8 @@ export function Heatmap({
           )}
         </div>
 
-        <div className="pb-2">
-          <div className="[--heat-cell:clamp(5px,calc((100vw-5.5rem)/55),12px)] [--heat-gap:clamp(2px,0.7vw,4px)] sm:[--heat-cell:clamp(8px,calc((100vw-12rem)/55),12px)]">
+        <div className="-mx-1 overflow-x-auto px-1 pb-2">
+          <div className="min-w-max [--heat-cell:clamp(7px,calc((100vw-5.5rem)/55),12px)] [--heat-gap:clamp(2px,0.7vw,4px)] sm:[--heat-cell:clamp(8px,calc((100vw-12rem)/55),12px)]">
           {/* Month labels — same pitch as the grid (w-3 cell + gap-1 = 1rem) */}
           <div className="mb-1 flex pl-7" style={{ gap: "var(--heat-gap)" }}>
             {weeks.map((week, wi) => {
@@ -287,9 +287,9 @@ export function Heatmap({
         </span>
       </div>
 
-      <div className="pb-2">
+      <div className="-mx-1 overflow-x-auto px-1 pb-2">
         <div
-          className="flex [--heat-cell:clamp(5px,calc((100vw-4rem)/55),12px)] [--heat-gap:clamp(2px,0.7vw,4px)] sm:[--heat-cell:clamp(8px,calc((100vw-10rem)/55),12px)]"
+          className="flex min-w-max [--heat-cell:clamp(7px,calc((100vw-4rem)/55),12px)] [--heat-gap:clamp(2px,0.7vw,4px)] sm:[--heat-cell:clamp(8px,calc((100vw-10rem)/55),12px)]"
           style={{ gap: "var(--heat-gap)" }}
         >
         {weeks.map((week, wi) => (

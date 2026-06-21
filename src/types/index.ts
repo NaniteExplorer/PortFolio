@@ -262,6 +262,12 @@ export interface CPPlatform {
   maxRating?: number;
   /** Rank / title, e.g. "Knight", "Expert", "4★". */
   rank?: string;
+  /** Platform-native contest honorific (LeetCode "Knight"/"Guardian"), fetched
+   *  live and shown as a premium pill when present. */
+  contestBadge?: string;
+  /** All-time top rating achievable on this platform (the global record holder's
+   *  peak). Used as the 100% mark on the comparative rating bar. */
+  ratingCeiling?: number;
   /** Total problems solved on this platform. */
   solved?: number;
   /** Number of rated contests participated in. */

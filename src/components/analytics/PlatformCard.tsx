@@ -13,12 +13,15 @@ import { fadeUp } from "@/lib/motion";
  *
  *   ┌ logo · name · @handle ················· ↗ (always) ┐
  *   │ <rating>  rating          [ rank tag ]   ◯ ring    │
- *   │ Peak N                                             │
+ *   │ [ Knight / Guardian honorific pill ]               │
+ *   ├ Peak ████████░░░░░░ vs 4000 ceiling ───────────────┤
  *   ├ Solved · Contests · …extra metrics ────────────────┤
  *
  * Rated platforms (LeetCode, Codeforces, CodeChef) show their native rating +
- * the platform's own tag (Top 5% / Expert / 3★) + a peak ring. Unrated practice
- * platforms (AtCoder) honestly show "Practice" instead of a fabricated rating.
+ * the platform's own tag (Top 5% / Expert / 3★) + a peak ring + a comparative
+ * bar that scales the peak against the all-time platform ceiling. Unrated
+ * practice platforms (AtCoder) honestly show "Practice" instead of a fabricated
+ * rating.
  */
 export function PlatformCard({ platform }: { platform: CPPlatform }) {
   const color = platform.color ?? brandColors[platform.id] ?? "rgb(var(--accent))";
@@ -28,6 +31,12 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
   // Only ring platforms that report a distinct peak — the ring then visualises
   // current-vs-peak progress instead of echoing the current rating shown big.
   const hasPeak = platform.maxRating != null;
+  // Comparative bar: where the peak sits against the platform's all-time record.
+  const ceiling = platform.ratingCeiling;
+  const showCompare = isRated && hasPeak && ceiling != null && ceiling > 0;
+  const comparePct = showCompare
+    ? Math.max(3, Math.min(100, Math.round((platform.maxRating! / ceiling!) * 100)))
+    : 0;
 
   return (
     <motion.a
@@ -35,9 +44,14 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
       target="_blank"
       rel="noopener noreferrer"
       variants={fadeUp}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--brand)]/40"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[var(--brand)]/45 hover:shadow-[0_24px_60px_-32px_var(--brand)]"
       style={{ ["--brand" as string]: color }}
     >
+      {/* Top accent hairline — quiet brand signature */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-50 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }}
+      />
       {/* Brand glow */}
       <div
         className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-40"
@@ -48,7 +62,7 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <span
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ring-white/5"
             style={{ backgroundColor: hexA(color, 0.12), color }}
           >
             <BrandIcon name={platform.icon} fallbackLabel={platform.name} size={24} />
@@ -68,17 +82,14 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
       <div className="mt-5 flex items-center justify-between gap-3">
         <div className="min-w-0">
           {isRated ? (
-            <>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-extrabold leading-none tracking-tight">
-                  {platform.rating}
-                </span>
-                <span className="text-xs font-medium text-muted">
-                  {platform.ratingLabel ?? "rating"}
-                </span>
-              </div>
-              {/* Peak is surfaced by the ring (center) — no redundant text line. */}
-            </>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-3xl font-extrabold leading-none tracking-tight">
+                {platform.rating}
+              </span>
+              <span className="text-xs font-medium text-muted">
+                {platform.ratingLabel ?? "rating"}
+              </span>
+            </div>
           ) : (
             <>
               <div className="flex items-baseline gap-1.5">
@@ -90,13 +101,27 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
               <p className="mt-1 text-xs text-muted">Practice profile</p>
             </>
           )}
-          {/* Tag — the platform's own honorific, consistently styled */}
-          <span
-            className="mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
-            style={{ backgroundColor: hexA(color, 0.14), color }}
-          >
-            {platform.rank ?? (isRated ? "Rated" : "Unrated")}
-          </span>
+          {/* Tags — the platform's own honorifics, consistently styled */}
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <span
+              className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
+              style={{ backgroundColor: hexA(color, 0.14), color }}
+            >
+              {platform.rank ?? (isRated ? "Rated" : "Unrated")}
+            </span>
+            {platform.contestBadge && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ring-white/10"
+                style={{
+                  background: `linear-gradient(135deg, ${hexA(color, 0.28)}, ${hexA(color, 0.1)})`,
+                  color,
+                }}
+              >
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
+                {platform.contestBadge}
+              </span>
+            )}
+          </div>
         </div>
 
         {isRated && hasPeak && (
@@ -109,6 +134,33 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
           />
         )}
       </div>
+
+      {/* Comparative bar — peak against the all-time platform ceiling */}
+      {showCompare && (
+        <div className="mt-5">
+          <div className="mb-1.5 flex items-baseline justify-between text-xs">
+            <span className="font-semibold text-muted">
+              Peak <span className="text-fg">{platform.maxRating}</span>
+            </span>
+            <span className="tabular-nums text-muted">
+              {comparePct}% of {ceiling!.toLocaleString("en-US")}
+            </span>
+          </div>
+          <div className="relative h-2 overflow-hidden rounded-full bg-surface-2/70 ring-1 ring-inset ring-white/5">
+            <motion.div
+              className="h-full rounded-full"
+              style={{ background: `linear-gradient(90deg, ${hexA(color, 0.55)}, ${color})` }}
+              initial={{ width: 0 }}
+              whileInView={{ width: `${comparePct}%` }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, ease: "easeOut" }}
+            />
+          </div>
+          <p className="mt-1.5 text-[10px] uppercase tracking-[0.12em] text-muted/80">
+            vs all-time platform peak
+          </p>
+        </div>
+      )}
 
       {/* Metric grid — consistent secondary stats */}
       <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
@@ -129,7 +181,7 @@ export function PlatformCard({ platform }: { platform: CPPlatform }) {
 
 function Metric({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-xl bg-surface-2/60 px-3 py-2">
+    <div className="rounded-xl bg-surface-2/60 px-3 py-2 ring-1 ring-inset ring-white/5">
       <p className="text-base font-bold">{value}</p>
       <p className="text-xs text-muted">{label}</p>
     </div>

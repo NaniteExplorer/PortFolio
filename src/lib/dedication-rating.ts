@@ -68,6 +68,30 @@ export const DEDICATION_TIERS: DedicationTier[] = [
   },
 ];
 
+/**
+ * MONTHLY OUTPUT TIERS — a separate ladder for the Monthly Trend chart, scored
+ * in actual monthly dedication points (NOT the yearly composite rating). The
+ * thresholds widen as you climb (30 → 1700) so each higher rank is meaningfully
+ * harder to reach than the last. These are intentionally distinct names from the
+ * composite Dedication Rating ranks so the two scales can never be confused.
+ */
+export const MONTHLY_TIERS: DedicationBenchmark[] = [
+  { label: "Ember", value: 30, color: "#84CC16", description: "First real monthly heat — output is visible." },
+  { label: "Kindling", value: 70, color: "#22C55E", description: "A month that holds a steady flame." },
+  { label: "Steady Burn", value: 120, color: "#14B8A6", description: "Consistent monthly output with momentum." },
+  { label: "Forge Heat", value: 190, color: "#06B6D4", description: "A strong building month, well above casual." },
+  { label: "Blaze", value: 290, color: "#3B82F6", description: "High-output month that stands out on the curve." },
+  { label: "Inferno", value: 420, color: "#8B5CF6", description: "An intense month few are willing to sustain." },
+  { label: "Firestorm", value: 600, color: "#A855F7", description: "Elite monthly density across sources." },
+  { label: "Solar Flare", value: 850, color: "#F97316", description: "A rare, ferocious month of compounded work." },
+  { label: "Supernova", value: 1200, color: "#EF4444", description: "Near the ceiling of what a month can hold." },
+  { label: "Singularity", value: 1700, color: "#F8D477", description: "A mythic monthly peak, designed to stay brutal." },
+];
+
+export function monthlyTiers(): DedicationBenchmark[] {
+  return MONTHLY_TIERS;
+}
+
 export function dedicationBenchmarks(): DedicationBenchmark[] {
   return DEDICATION_TIERS.filter((tier) => tier.monthlyBenchmark > 0).map((tier) => ({
     label: tier.name,

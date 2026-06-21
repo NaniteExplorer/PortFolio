@@ -30,6 +30,9 @@ export const competitive: CPProfile = {
       url: "https://leetcode.com/u/Debasish1452003/",
       icon: "SiLeetcode",
       color: "#FFA116",
+      // All-time top LeetCode contest rating (global #1 peak ≈ 3686). Used as the
+      // 100% mark on the comparative rating bar — a stable record, not a live feed.
+      ratingCeiling: 3700,
     },
     {
       id: "codeforces",
@@ -38,6 +41,8 @@ export const competitive: CPProfile = {
       url: "https://codeforces.com/profile/debasishrana1452003",
       icon: "SiCodeforces",
       color: "#1F8ACB",
+      // Codeforces all-time peak (tourist ≈ 4009). 100% mark for the rating bar.
+      ratingCeiling: 4000,
     },
     {
       id: "codechef",
@@ -46,6 +51,8 @@ export const competitive: CPProfile = {
       url: "https://www.codechef.com/users/nanite",
       icon: "SiCodechef",
       color: "#5B4638",
+      // CodeChef all-time peak (top rating ≈ 3000+). 100% mark for the rating bar.
+      ratingCeiling: 3000,
     },
     {
       id: "geeksforgeeks",

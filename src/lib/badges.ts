@@ -74,6 +74,20 @@ const TRACK_PRIORITY: Record<BadgeTrack, number> = {
   monthly: 1,
 };
 
+/**
+ * Pro-level floor. Entry medals devalue the trophy case, so we drop the lowest
+ * benchmark: any bronze-tier medal and a small denylist of low-effort,
+ * single-month "noobie" badges. Every surviving badge demands real, sustained
+ * work — nothing earnable in a casual month.
+ */
+const NOOBIE_BADGE_IDS = new Set<string>([
+  "monthly_grind", // 20-ish active days in one month — too easy for the floor
+]);
+
+function isProLevel(item: BadgeAchievement): boolean {
+  return item.tier !== "bronze" && !NOOBIE_BADGE_IDS.has(item.id);
+}
+
 function clampProgress(progress: number, target: number) {
   return Math.max(0, Math.min(Math.round(progress), target));
 }
@@ -842,7 +856,8 @@ export function buildBadges({
         item.track === "dedication" ||
         item.track === "monthly" ||
         (item.track === "prestige" && dedicationPrestige.has(item.id))
-    );
+    )
+    .filter(isProLevel);
   return {
     badges: sortBadges(badges),
     featuredBadges: selectFeaturedBadges(badges),
@@ -995,7 +1010,7 @@ export function buildDevBadges(dev: DevProfileData) {
       available: live,
     },
   ];
-  return sortBadges(rules.map(badge).filter((item): item is BadgeAchievement => item != null));
+  return sortBadges(rules.map(badge).filter((item): item is BadgeAchievement => item != null).filter(isProLevel));
 }
 
 export function buildCompetitiveBadges(competitive: CPProfile) {
@@ -1183,7 +1198,7 @@ export function buildCompetitiveBadges(competitive: CPProfile) {
       available: hasLiveCp,
     },
   ];
-  return sortBadges(rules.map(badge).filter((item): item is BadgeAchievement => item != null));
+  return sortBadges(rules.map(badge).filter((item): item is BadgeAchievement => item != null).filter(isProLevel));
 }
 
 function sortBadges(badges: BadgeAchievement[]) {
